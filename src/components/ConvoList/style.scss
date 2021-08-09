@@ -1,0 +1,30 @@
+@use '../../colors.scss' as col;
+@use '../../common.scss';
+
+.convo-list {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+}
+
+.convos {
+    display: flex;
+    flex-direction: column;
+    flex: 1 0 0;
+    overflow: auto;
+}
+
+.convo {
+    @include common.list-item;
+}
+
+.convo-name {
+    flex: 1 1 auto;
+}
+
+.add-convo-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0.5em;
+}

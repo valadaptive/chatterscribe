@@ -1,0 +1,9 @@
+.messages {
+    flex: 1 1 auto;
+    overflow: auto;
+}
+
+.messages-inner {
+    display: table;
+    width: 100%;
+}

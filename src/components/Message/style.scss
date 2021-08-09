@@ -1,0 +1,42 @@
+@use '../../colors.scss' as col;
+
+.message {
+    display: table-row;
+    position: relative;
+
+    &:hover {
+        background-color: rgba(255, 255, 255, 0.05);
+
+        & .buttons {
+            display: flex;
+        }
+    }
+
+    & > * {
+        display: table-cell;
+    }
+}
+
+.contents {
+    outline: none;
+    width: 100%;
+}
+
+.author {
+    font-weight: bold;
+    flex: 0 0 auto;
+    white-space: nowrap;
+    text-align: right;
+    padding: 0.25em 0.5em 0.25em 0.5em;
+}
+
+.buttons {
+    display: none;
+    background-color: col.$bg-card;
+    border-radius: 0.25em;
+    padding: 0.25em;
+    position: absolute;
+    top: 50%;
+    right: 1em;
+    transform: translateY(-50%);
+}

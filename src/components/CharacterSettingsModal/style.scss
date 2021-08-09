@@ -1,0 +1,14 @@
+.character-settings {
+    display: table;
+    border-spacing: 1em;
+    margin: -1em;
+}
+
+.row {
+    display: table-row;
+    padding: 0.5em;
+}
+
+.label, .control {
+    display: table-cell;
+}

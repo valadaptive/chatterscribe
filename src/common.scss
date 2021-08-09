@@ -1,0 +1,27 @@
+@use './colors.scss' as col;
+
+@mixin list-item {
+    display: flex;
+    margin: 0.5em 0.5em 0;
+    background-color: col.$bg-card-inactive;
+    padding: 0.5em;
+    border-radius: 0.25em;
+    cursor: pointer;
+    align-items: center;
+    border: 1px solid col.$bg-card-inactive;
+
+    &:last-child {
+        margin-bottom: 0.5em;
+    }
+
+    &.active, &.active:hover {
+        background-color: col.$bg-card;
+        border-color: col.$bg-card;
+        border-left-color: col.$outline-card-active;
+    }
+
+    &:hover {
+        background-color: col.$bg-card-hover;
+        border-color: col.$bg-card-hover;
+    }
+}

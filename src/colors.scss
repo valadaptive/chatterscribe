@@ -1,0 +1,10 @@
+@use "sass:color";
+
+$bg-primary: rgb(23, 25, 31);
+$bg-secondary: rgb(23, 22, 26);
+$bg-tertiary: rgb(14, 13, 15);
+$bg-card: color.mix($bg-primary, white, 90%);
+$bg-card-inactive: color.mix($bg-primary, white, 95%);
+$bg-card-hover: color.mix($bg-primary, white, 92.5%);
+$outline-card-active: rgb(74, 137, 255);
+$text: rgb(210, 216, 219);

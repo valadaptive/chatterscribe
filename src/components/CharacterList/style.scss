@@ -1,0 +1,18 @@
+@use '../../colors.scss' as col;
+@use '../../common.scss';
+
+.divider {
+    font-weight: bold;
+    padding: 0.5em;
+    padding-bottom: 0;
+}
+
+.character {
+    @include common.list-item;
+    display: flex;
+}
+
+.character-name {
+    flex: 1 0 auto;
+    font-weight: bold;
+}

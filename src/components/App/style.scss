@@ -1,0 +1,40 @@
+@use '../../colors.scss' as col;
+
+html, body {
+    width: 100%;
+    height: 100%;
+}
+
+body {
+    margin: 0;
+    background-color: col.$bg-primary;
+    color: col.$text;
+    font-family: sans-serif;
+}
+
+.app {
+    display: flex;
+    height: 100%;
+    flex-direction: row;
+}
+
+.convos-pane {
+    display: flex;
+    flex-direction: column;
+    width: 20em;
+    flex: 0 0 auto;
+    background-color: col.$bg-secondary;
+}
+
+.messages-pane {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+    overflow: auto;
+}
+
+.characters-pane {
+    background-color: col.$bg-secondary;
+    width: 20em;
+    flex: 0 0 auto;
+}
