@@ -12,6 +12,13 @@ body {
     font-family: sans-serif;
 }
 
+textarea {
+    border: none;
+    background-color: col.$bg-card;
+    border-radius: 0.25em;
+    color: col.$text;
+}
+
 .app {
     display: flex;
     height: 100%;

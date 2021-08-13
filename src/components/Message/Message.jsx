@@ -68,15 +68,16 @@ class Message extends Component {
                     className={classNames(style['contents'], {[style['editable']]: editable})}
                 >
                     {editable ?
-                        <input
-                            type="text"
-                            onKeyPress={this.onKeyPress}
-                            onBlur={this.onBlur}
-                            contentEditable={editable}
-                            tabIndex="0"
-                            ref={this.contentsRef}
-                            value={contents}
-                        /> :
+                        <div className={style['message-edit-wrapper']}>
+                            <textarea
+                                className={style['message-edit-area']}
+                                onKeyPress={this.onKeyPress}
+                                onBlur={this.onBlur}
+                                tabIndex="0"
+                                ref={this.contentsRef}
+                                value={contents}
+                            />
+                        </div> :
                         contents}
                 </div>
                 <div className={style['buttons']}>

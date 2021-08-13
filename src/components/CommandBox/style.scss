@@ -2,10 +2,6 @@
 
 .command-box {
     display: flex;
-    border: none;
-    background-color: col.$bg-card;
-    border-radius: 0.25em;
-    color: col.$text;
     margin: 0.5em;
     resize: none;
 }
