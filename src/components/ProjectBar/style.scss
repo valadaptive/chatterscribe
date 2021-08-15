@@ -1,0 +1,27 @@
+@use '../../colors.scss' as col;
+
+.project-bar {
+    background-color: col.$bg-secondary;
+    border-bottom: 1px solid col.$bg-tertiary;
+    padding: 0.5em;
+    display: flex;
+    align-items: center;
+}
+
+.project-name {
+    margin-right: 0.25em;
+}
+
+.button {
+    padding: 0.25em;
+}
+
+.error {
+    display: flex;
+    align-items: center;
+    padding: 0.25em 0.25em 0.25em 0.5em;
+    color: col.$error;
+    border: 1px solid col.$error;
+    border-radius: 0.25em;
+    font-size: 80%;
+}

@@ -2,6 +2,9 @@
     width: 24px;
     height: 24px;
     opacity: 0.5;
+
+    background-repeat: no-repeat;
+    background-origin: content-box;
 }
 
 .icon-button {
@@ -30,4 +33,12 @@
 
 .edit {
     background-image: url('edit.svg');
+}
+
+.load {
+    background-image: url('load.svg');
+}
+
+.save {
+    background-image: url('save.svg');
 }

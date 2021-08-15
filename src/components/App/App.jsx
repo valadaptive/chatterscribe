@@ -9,6 +9,7 @@ import CharacterSettingsModal from '../CharacterSettingsModal/CharacterSettingsM
 import ConvoList from '../ConvoList/ConvoList';
 import Messages from '../Messages/Messages';
 import Modal from '../Modal/Modal';
+import ProjectBar from '../ProjectBar/ProjectBar';
 import ReplaceCharacterModal from '../ReplaceCharacterModal/ReplaceCharacterModal';
 
 import setEditedCharacterID from '../../actions/set-edited-character-id';
@@ -34,15 +35,20 @@ class App extends Component {
         const {convos, currentConvoIndex, editedCharID, toBeReplacedCharID} = this.props;
         return (
             <div className={style['app']}>
-                <div className={style['convos-pane']}>
-                    <ConvoList />
+                <div className={style['project-bar-pane']}>
+                    <ProjectBar />
                 </div>
-                <div className={style['messages-pane']}>
-                    <Messages messages={currentConvoIndex !== -1 ? convos[currentConvoIndex].messages : null} />
-                    <CommandBox />
-                </div>
-                <div className={style['characters-pane']}>
-                    <CharacterList />
+                <div className={style['app-pane']}>
+                    <div className={style['convos-pane']}>
+                        <ConvoList />
+                    </div>
+                    <div className={style['messages-pane']}>
+                        <Messages messages={currentConvoIndex !== -1 ? convos[currentConvoIndex].messages : null} />
+                        <CommandBox />
+                    </div>
+                    <div className={style['characters-pane']}>
+                        <CharacterList />
+                    </div>
                 </div>
                 {editedCharID !== null ?
                     <Modal onClose={this.closeCharacterSettings}>

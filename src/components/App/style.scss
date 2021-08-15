@@ -22,7 +22,12 @@ textarea {
 .app {
     display: flex;
     height: 100%;
-    flex-direction: row;
+    flex-direction: column;
+}
+
+.app-pane {
+    display: flex;
+    flex: 1 0 auto;
 }
 
 .convos-pane {

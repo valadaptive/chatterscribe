@@ -18,9 +18,10 @@ const loadStore = () => {
 
 const store =  createStore(loadStore() || {
     version: storeVersion,
+    projectName: 'New Project',
     convos: [],
-    currentConvoIndex: -1,
     chars: [],
+    currentConvoIndex: -1,
     currentCharID: null,
     editedMessageID: null,
     editedConvoID: null,
