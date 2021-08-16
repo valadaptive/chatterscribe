@@ -8,6 +8,25 @@ input[type=text] {
     border-radius: 0.25em;
 
     &:focus {
-        outline: 1px solid col.$outline-card-active;
+        outline: 1px solid col.$accent;
     }
+}
+
+button {
+    background-color: col.$accent-dark;
+    border: none;
+    border-radius: 0.25em;
+    color: col.$text;
+    padding: 0.5em 1em;
+    cursor: pointer;
+
+    &:hover {
+        background-color: col.$accent;
+    }
+
+    &:active {
+        background-color: col.$accent-darker;
+    }
+
+    transition: background-color 0.125s ease;
 }

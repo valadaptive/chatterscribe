@@ -17,7 +17,7 @@
     &.active, &.active:hover {
         background-color: col.$bg-card;
         border-color: col.$bg-card;
-        border-left-color: col.$outline-card-active;
+        border-left-color: col.$accent;
     }
 
     &:hover {
