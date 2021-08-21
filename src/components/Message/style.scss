@@ -5,7 +5,7 @@
     position: relative;
 
     &:hover {
-        background-color: rgba(255, 255, 255, 0.05);
+        background-color: rgba(255, 255, 255, 0.025);
 
         & .buttons {
             display: flex;
@@ -29,6 +29,12 @@
     white-space: nowrap;
     text-align: right;
     padding: 0.25em 0.5em 0.25em 0.5em;
+    cursor: pointer;
+    border-radius: 0.25em;
+
+    &:hover {
+        background-color: rgba(255, 255, 255, 0.125);
+    }
 }
 
 .buttons {

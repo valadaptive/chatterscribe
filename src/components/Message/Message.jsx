@@ -6,8 +6,11 @@ import {Component, createRef} from 'preact';
 import {connect} from 'unistore/preact';
 import classNames from 'classnames';
 
+import SearchableMenu from '../SearchableMenu/SearchableMenu';
+
 import deleteMessage from '../../actions/delete-message';
 import editMessage from '../../actions/edit-message';
+import replaceMessageAuthor from '../../actions/replace-message-author';
 import setEditedMessage from '../../actions/set-edited-message-id';
 
 import colorToHex from '../../util/color-to-hex';
@@ -16,11 +19,20 @@ class Message extends Component {
     constructor (props) {
         super(props);
 
+        this.state = {
+            authorMenuOpen: false,
+            authorMenuX: 0,
+            authorMenuY: 0
+        };
+
         this.contentsRef = createRef();
         this.onMessageEdit = this.onMessageEdit.bind(this);
         this.onMessageDelete = this.onMessageDelete.bind(this);
         this.onKeyPress = this.onKeyPress.bind(this);
         this.onBlur = this.onBlur.bind(this);
+        this.onClickAuthor = this.onClickAuthor.bind(this);
+        this.onDismissAuthorMenu = this.onDismissAuthorMenu.bind(this);
+        this.onReplaceAuthor = this.onReplaceAuthor.bind(this);
     }
 
     onMessageEdit () {
@@ -45,6 +57,24 @@ class Message extends Component {
         this.props.setEditedMessage(null);
     }
 
+    onClickAuthor (event) {
+        const {x, y, height} = event.target.getBoundingClientRect();
+        this.setState(prevState => ({
+            authorMenuOpen: !prevState.authorMenuOpen,
+            authorMenuX: x,
+            authorMenuY: y + height
+        }));
+    }
+
+    onReplaceAuthor (newAuthorID) {
+        this.props.replaceMessageAuthor(this.props.message.id, newAuthorID);
+        this.setState({authorMenuOpen: false});
+    }
+
+    onDismissAuthorMenu () {
+        this.setState({authorMenuOpen: false});
+    }
+
     componentDidUpdate (prevProps) {
         if (prevProps.editedMessageID !== prevProps.message.id &&
             this.props.editedMessageID === this.props.message.id &&
@@ -61,7 +91,11 @@ class Message extends Component {
 
         return (
             <div className={style['message']}>
-                <div className={style['author']} style={`color: ${colorToHex(char.color)}`}>
+                <div
+                    className={style['author']}
+                    style={`color: ${colorToHex(char.color)}`}
+                    onClick={this.onClickAuthor}
+                >
                     {chars.find(char => char.id === authorID).name}
                 </div>
                 <div
@@ -100,9 +134,21 @@ class Message extends Component {
                         onClick={this.onMessageDelete}
                     />
                 </div>
+                {this.state.authorMenuOpen ?
+                    <SearchableMenu
+                        items={this.props.chars.map(({id, name}) => ({id, value: name}))}
+                        x={this.state.authorMenuX}
+                        y={this.state.authorMenuY}
+                        onDismiss={this.onDismissAuthorMenu}
+                        onClickItem={this.onReplaceAuthor}
+                    /> :
+                    null}
             </div>
         );
     }
 }
 
-export default connect(['chars', 'editedMessageID'], {deleteMessage, editMessage, setEditedMessage})(Message);
+export default connect(
+    ['chars', 'editedMessageID'],
+    {deleteMessage, editMessage, replaceMessageAuthor, setEditedMessage}
+)(Message);

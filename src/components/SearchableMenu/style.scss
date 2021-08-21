@@ -1,0 +1,31 @@
+@use '../../colors.scss' as col;
+
+.searchable-menu {
+    z-index: 2;
+    position: fixed;
+    background-color: col.$bg-primary;
+    border: 1px solid col.$bg-tertiary;
+    border-radius: 0.25em;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+}
+
+.search-bar {
+    padding: 0.25em;
+    background-color: col.$bg-secondary;
+}
+
+.items {
+    overflow: auto;
+}
+
+.item {
+    padding: 0.5em;
+    cursor: pointer;
+
+    &:hover {
+        background-color: col.$bg-card-hover;
+    }
+}
