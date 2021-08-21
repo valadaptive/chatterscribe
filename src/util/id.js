@@ -1,6 +1,6 @@
-const randomArr = new Uint32Array(1);
+const randomArr = new Uint32Array(2);
 
 export default () => {
     crypto.getRandomValues(randomArr);
-    return ('00000000' + randomArr[0].toString(16)).slice(-8);
+    return ('0000000' + randomArr[0].toString(32)).slice(-7) + ('0000000' + randomArr[1].toString(32)).slice(-7);
 };
