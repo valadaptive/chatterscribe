@@ -10,6 +10,7 @@ body {
     background-color: col.$bg-primary;
     color: col.$text;
     font-family: sans-serif;
+    scrollbar-color: col.$bg-tertiary col.$bg-primary;
 }
 
 textarea {
