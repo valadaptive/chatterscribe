@@ -12,6 +12,7 @@ import deleteMessage from '../../actions/delete-message';
 import editMessage from '../../actions/edit-message';
 import replaceMessageAuthor from '../../actions/replace-message-author';
 import setEditedMessage from '../../actions/set-edited-message-id';
+import setInsertAboveMessageID from '../../actions/set-insert-above-message-id';
 
 import colorToHex from '../../util/color-to-hex';
 
@@ -26,6 +27,7 @@ class Message extends Component {
         };
 
         this.contentsRef = createRef();
+        this.onInsertAbove = this.onInsertAbove.bind(this);
         this.onMessageEdit = this.onMessageEdit.bind(this);
         this.onMessageDelete = this.onMessageDelete.bind(this);
         this.onKeyPress = this.onKeyPress.bind(this);
@@ -33,6 +35,12 @@ class Message extends Component {
         this.onClickAuthor = this.onClickAuthor.bind(this);
         this.onDismissAuthorMenu = this.onDismissAuthorMenu.bind(this);
         this.onReplaceAuthor = this.onReplaceAuthor.bind(this);
+    }
+
+    onInsertAbove () {
+        this.props.setInsertAboveMessageID(this.props.insertAboveMessageID === this.props.message.id ?
+            null :
+            this.props.message.id);
     }
 
     onMessageEdit () {
@@ -117,20 +125,29 @@ class Message extends Component {
                 <div className={style['buttons']}>
                     <div
                         className={classNames(
-                            style['edit'],
+                            icons['icon'],
+                            icons['icon-button'],
+                            icons['insert-above']
+                        )}
+                        title="Insert above"
+                        onClick={this.onInsertAbove}
+                    />
+                    <div
+                        className={classNames(
                             icons['icon'],
                             icons['icon-button'],
                             icons['edit'])
                         }
+                        title="Edit"
                         onClick={this.onMessageEdit}
                     />
                     <div
                         className={classNames(
-                            style['delete'],
                             icons['icon'],
                             icons['icon-button'],
                             icons['delete'])
                         }
+                        title="Delete"
                         onClick={this.onMessageDelete}
                     />
                 </div>
@@ -149,6 +166,6 @@ class Message extends Component {
 }
 
 export default connect(
-    ['chars', 'editedMessageID'],
-    {deleteMessage, editMessage, replaceMessageAuthor, setEditedMessage}
+    ['chars', 'editedMessageID', 'insertAboveMessageID'],
+    {deleteMessage, editMessage, replaceMessageAuthor, setEditedMessage, setInsertAboveMessageID}
 )(Message);

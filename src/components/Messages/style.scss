@@ -7,3 +7,24 @@
     display: table;
     width: 100%;
 }
+
+.insert-box {
+    display: table-row;
+}
+
+.close-wrapper {
+    display: table-cell;
+    vertical-align: middle;
+}
+
+.close-positioner {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    padding-right: 0.25em;
+}
+
+.command-box-wrapper {
+    display: flex;
+    padding-right: 0.5em;
+}

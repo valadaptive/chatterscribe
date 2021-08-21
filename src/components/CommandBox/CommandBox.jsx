@@ -54,7 +54,7 @@ class CommandBox extends Component {
                 const {currentCharID, chars, currentConvoIndex, convos} = this.context.store.getState();
                 const currentCharacter = chars.find(char => char.id === currentCharID);
                 const {messages} = convos[currentConvoIndex];
-                for (let i = messages.length - 1; i >= 0; i--) {
+                for (let i = this.props.beforeMessage || messages.length - 1; i >= 0; i--) {
                     if (messages[i].authorID === currentCharacter.id) {
                         this.props.editMessage(
                             messages[i].id,
@@ -67,7 +67,7 @@ class CommandBox extends Component {
             }
 
             event.target.value = '';
-            this.props.createMessage(command);
+            this.props.createMessage(command, this.props.beforeMessage);
         }
     }
 

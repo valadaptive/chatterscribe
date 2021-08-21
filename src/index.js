@@ -26,7 +26,8 @@ const store =  createStore(loadStore() || {
     editedMessageID: null,
     editedConvoID: null,
     editedCharID: null,
-    toBeReplacedCharID: null
+    toBeReplacedCharID: null,
+    insertAboveMessageID: null
 });
 
 store.subscribe(store => {

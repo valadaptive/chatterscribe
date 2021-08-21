@@ -44,7 +44,9 @@ class App extends Component {
                     </div>
                     <div className={style['messages-pane']}>
                         <Messages messages={currentConvoIndex !== -1 ? convos[currentConvoIndex].messages : null} />
-                        <CommandBox />
+                        <div className={style['command-box-pane']}>
+                            <CommandBox />
+                        </div>
                     </div>
                     <div className={style['characters-pane']}>
                         <CharacterList />

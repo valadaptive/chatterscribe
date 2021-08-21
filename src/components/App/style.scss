@@ -46,6 +46,11 @@ textarea {
     overflow: auto;
 }
 
+.command-box-pane {
+    margin: 0.5em;
+    display: flex;
+}
+
 .characters-pane {
     background-color: col.$bg-secondary;
     width: 20em;
