@@ -21,7 +21,7 @@ export default (state, messageContents, beforeMessageIndex) => {
                 contents: messageContents,
                 id: id()
             };
-            if (beforeMessageIndex) {
+            if (typeof beforeMessageIndex === 'number') {
                 newMessages.splice(beforeMessageIndex, 0, newMessage);
             } else {
                 newMessages.push(newMessage);
