@@ -12,6 +12,9 @@ class CommandBox extends Component {
     constructor (props) {
         super(props);
 
+        this.tabResults = null;
+        this.tabIndex = -1;
+
         this.onKeyPress = this.onKeyPress.bind(this);
         this.onKeyDown = this.onKeyDown.bind(this);
     }
@@ -20,11 +23,17 @@ class CommandBox extends Component {
         if (event.code === 'Tab') {
             event.preventDefault();
             const contents = event.target.value.toLowerCase();
-            if (contents.indexOf(':') === -1) {
-                const character = this.props.chars.find(character => character.name.toLowerCase().startsWith(contents));
-                if (!character) return;
-                event.target.value = `${character.name}: `;
+            if (contents.indexOf(':') === -1 && this.tabResults === null) {
+                this.tabResults = this.props.chars.filter(
+                    character => character.name.toLowerCase().startsWith(contents));
+                this.tabIndex = 0;
             }
+            if (this.tabResults.length === 0) return;
+            const character = this.tabResults[this.tabIndex];
+            this.tabIndex = (this.tabIndex + 1) % this.tabResults.length;
+            event.target.value = `${character.name}: `;
+        } else {
+            this.tabResults = null;
         }
     }
 
