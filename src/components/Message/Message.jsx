@@ -95,7 +95,7 @@ class Message extends Component {
         const {message, chars, editedMessageID} = this.props;
         const {id, authorID, contents} = message;
         const editable = id === editedMessageID;
-        const char = chars.find(char => char.id === message.authorID);
+        const char = chars.find(char => char.id === authorID) || {color: 0xffffff, name: 'Unknown Character'};
 
         return (
             <div className={style['message']}>
@@ -104,7 +104,7 @@ class Message extends Component {
                     style={`color: ${colorToHex(char.color)}`}
                     onClick={this.onClickAuthor}
                 >
-                    {chars.find(char => char.id === authorID).name}
+                    {char.name}
                 </div>
                 <div
                     className={classNames(style['contents'], {[style['editable']]: editable})}
