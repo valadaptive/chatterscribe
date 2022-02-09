@@ -25,6 +25,7 @@
   "dependencies": {
     "classnames": "^2.3.1",
     "jtd": "^0.1.1",
+    "lodash.merge": "^4.6.2",
     "preact": "^10.1.0",
     "preact-render-to-string": "^5.1.2",
     "sass": "^1.37.5",

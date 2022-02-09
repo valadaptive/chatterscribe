@@ -1,12 +1,7 @@
 export default (state, json) => {
     return {
+        projectName: json.projectName,
         convos: json.convos,
-        chars: json.chars,
-        currentConvoIndex: -1,
-        currentCharID: null,
-        editedMessageID: null,
-        editedConvoID: null,
-        editedCharID: null,
-        toBeReplacedCharID: null
+        chars: json.chars
     };
 };

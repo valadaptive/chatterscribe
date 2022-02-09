@@ -10,6 +10,7 @@ import deleteConvo from '../../actions/delete-convo';
 import setConvoName from '../../actions/set-convo-name';
 import setCurrentConvoIndex from '../../actions/set-current-convo-index';
 import setEditedConvo from '../../actions/set-edited-convo-id';
+import setExportedConvoID from '../../actions/set-exported-convo-id';
 
 class ConvoList extends Component {
     constructor (props) {
@@ -17,6 +18,7 @@ class ConvoList extends Component {
 
         this.onAddConvo = this.onAddConvo.bind(this);
         this.onEditConvo = this.onEditConvo.bind(this);
+        this.onExportConvo = this.onExportConvo.bind(this);
         this.onConvoEditKeyPress = this.onConvoEditKeyPress.bind(this);
         this.onConvoEditBlur = this.onConvoEditBlur.bind(this);
 
@@ -30,6 +32,11 @@ class ConvoList extends Component {
 
     onClickConvo (index) {
         this.props.setCurrentConvoIndex(index);
+    }
+
+    onExportConvo (id, event) {
+        event.stopPropagation();
+        this.props.setExportedConvoID(id);
     }
 
     onEditConvo (id, event) {
@@ -88,7 +95,14 @@ class ConvoList extends Component {
                                 convo.name}</div>
                             <div
                                 className={classNames(
-                                    style['edit'],
+                                    icons['icon'],
+                                    icons['icon-button'],
+                                    icons['export'])
+                                }
+                                onClick={this.onExportConvo.bind(this, convo.id)}
+                            />
+                            <div
+                                className={classNames(
                                     icons['icon'],
                                     icons['icon-button'],
                                     icons['edit'])
@@ -97,7 +111,6 @@ class ConvoList extends Component {
                             />
                             <div
                                 className={classNames(
-                                    style['delete'],
                                     icons['icon'],
                                     icons['icon-button'],
                                     icons['delete'])
@@ -117,5 +130,5 @@ class ConvoList extends Component {
 
 export default connect(
     ['convos', 'currentConvoIndex', 'editedConvoID'],
-    {createConvo, setCurrentConvoIndex, setEditedConvo, setConvoName, deleteConvo}
+    {createConvo, setCurrentConvoIndex, setEditedConvo, setConvoName, deleteConvo, setExportedConvoID}
 )(ConvoList);

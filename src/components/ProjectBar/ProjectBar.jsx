@@ -11,6 +11,8 @@ import setProjectName from '../../actions/set-project-name';
 import saveState from '../../serialization/save-state';
 import validate from '../../serialization/validate';
 
+import saveToFile from '../../util/save-to-file';
+
 class ProjectBar extends Component {
     constructor (props) {
         super(props);
@@ -54,15 +56,7 @@ class ProjectBar extends Component {
 
     onSave () {
         const {version, projectName, convos, chars} = this.props;
-        const a = document.createElement('a');
-        const url = URL.createObjectURL(new Blob([saveState({version, projectName, convos, chars})]));
-
-        a.href = url;
-        a.download = `${projectName}.json`;
-        a.click();
-        setTimeout(() => {
-            window.URL.revokeObjectURL(url);
-        }, 0);
+        saveToFile(`${projectName}.json`, saveState({version, projectName, convos, chars}));
     }
 
     closeError () {

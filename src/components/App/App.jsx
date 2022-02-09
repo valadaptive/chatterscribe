@@ -7,6 +7,7 @@ import CommandBox from '../CommandBox/CommandBox';
 import CharacterList from '../CharacterList/CharacterList';
 import CharacterSettingsModal from '../CharacterSettingsModal/CharacterSettingsModal';
 import ConvoList from '../ConvoList/ConvoList';
+import ExportConvoModal from '../ExportConvoModal/ExportConvoModal';
 import Messages from '../Messages/Messages';
 import Modal from '../Modal/Modal';
 import ProjectBar from '../ProjectBar/ProjectBar';
@@ -14,6 +15,7 @@ import ReplaceCharacterModal from '../ReplaceCharacterModal/ReplaceCharacterModa
 
 import setEditedCharacterID from '../../actions/set-edited-character-id';
 import setToBeReplacedCharacterID from '../../actions/set-to-be-replaced-character-id';
+import setExportedConvoID from '../../actions/set-exported-convo-id';
 
 class App extends Component {
     constructor (props) {
@@ -21,6 +23,7 @@ class App extends Component {
 
         this.closeCharacterSettings = this.closeCharacterSettings.bind(this);
         this.closeCharacterReplaceDialog = this.closeCharacterReplaceDialog.bind(this);
+        this.closeExportConvoDialog = this.closeExportConvoDialog.bind(this);
     }
 
     closeCharacterSettings () {
@@ -31,8 +34,12 @@ class App extends Component {
         this.props.setToBeReplacedCharacterID(null);
     }
 
+    closeExportConvoDialog () {
+        this.props.setExportedConvoID(null);
+    }
+
     render () {
-        const {convos, currentConvoIndex, editedCharID, toBeReplacedCharID} = this.props;
+        const {convos, currentConvoIndex, editedCharID, toBeReplacedCharID, exportedConvoID} = this.props;
         return (
             <div className={style['app']}>
                 <div className={style['project-bar-pane']}>
@@ -62,12 +69,17 @@ class App extends Component {
                         <ReplaceCharacterModal />
                     </Modal> :
                     null}
+                {exportedConvoID !== null ?
+                    <Modal onClose={this.closeExportConvoDialog}>
+                        <ExportConvoModal />
+                    </Modal> :
+                    null}
             </div>
         );
     }
 }
 
 export default connect(
-    ['convos', 'currentConvoIndex', 'editedCharID', 'toBeReplacedCharID'],
-    {setEditedCharacterID, setToBeReplacedCharacterID}
+    ['convos', 'currentConvoIndex', 'editedCharID', 'toBeReplacedCharID', 'exportedConvoID'],
+    {setEditedCharacterID, setToBeReplacedCharacterID, setExportedConvoID}
 )(App);

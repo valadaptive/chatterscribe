@@ -1,6 +1,6 @@
 @use './colors.scss' as col;
 
-input[type=text] {
+input[type=text], input[type=number] {
     color: col.$text;
     background-color: col.$bg-tertiary;
     border: none;
