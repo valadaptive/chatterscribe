@@ -92,13 +92,13 @@ class Message extends Component {
     }
 
     render () {
-        const {message, chars, editedMessageID} = this.props;
+        const {message, chars, editedMessageID, elemRef} = this.props;
         const {id, authorID, contents} = message;
         const editable = id === editedMessageID;
         const char = chars.find(char => char.id === authorID) || {color: 0xffffff, name: 'Unknown Character'};
 
         return (
-            <div className={style['message']}>
+            <div className={style['message']} ref={elemRef}>
                 <div
                     className={style['author']}
                     style={`color: ${colorToHex(char.color)}`}
