@@ -1,6 +1,6 @@
 {
-  "name": "convopad",
-  "short_name": "convopad",
+  "name": "chatterscribe",
+  "short_name": "chatterscribe",
   "start_url": "/",
   "display": "standalone",
   "orientation": "portrait",
