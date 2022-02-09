@@ -45,7 +45,7 @@ class CommandBox extends Component {
             // Parse off leading author specifier
             const colonMatch = /([^:]+):(?:\s+)(.+)/g.exec(command);
             if (colonMatch) {
-                const authorName = colonMatch[1].toLowerCase();
+                const authorName = colonMatch[1];
                 const authorNameLower = authorName.toLowerCase();
                 const char = this.props.chars.find(
                     character => character.name.toLowerCase() === authorNameLower);
