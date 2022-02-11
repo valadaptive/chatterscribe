@@ -18,7 +18,7 @@ class Messages extends Component {
     }
 
     componentDidUpdate (prevProps) {
-        const messageAddedAtBottom = prevProps &&
+        const messageAddedAtBottom = prevProps.messages && this.props.messages &&
         prevProps.messages.length + 1 === this.props.messages.length &&
         prevProps.messages[prevProps.messages.length - 1] !== this.props.messages[this.props.messages.length - 1];
 
