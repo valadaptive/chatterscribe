@@ -1,7 +1,6 @@
 import style from './style.scss';
 
-import {Component} from 'preact';
-import {connect} from 'unistore/preact';
+import {Component, JSX} from 'preact';
 
 import CommandBox from '../CommandBox/CommandBox';
 import CharacterList from '../CharacterList/CharacterList';
@@ -17,8 +16,14 @@ import setEditedCharacterID from '../../actions/set-edited-character-id';
 import setToBeReplacedCharacterID from '../../actions/set-to-be-replaced-character-id';
 import setExportedConvoID from '../../actions/set-exported-convo-id';
 
-class App extends Component {
-    constructor (props) {
+import {connect, InjectProps} from '../../util/store';
+
+const connectedKeys = ['convos', 'currentConvoIndex', 'editedCharID', 'toBeReplacedCharID', 'exportedConvoID'] as const;
+const connectedActions = {setEditedCharacterID, setToBeReplacedCharacterID, setExportedConvoID};
+type Props = InjectProps<{}, typeof connectedKeys, typeof connectedActions>;
+
+class App extends Component<Props> {
+    constructor (props: Props) {
         super(props);
 
         this.closeCharacterSettings = this.closeCharacterSettings.bind(this);
@@ -26,19 +31,19 @@ class App extends Component {
         this.closeExportConvoDialog = this.closeExportConvoDialog.bind(this);
     }
 
-    closeCharacterSettings () {
+    closeCharacterSettings (): void {
         this.props.setEditedCharacterID(null);
     }
 
-    closeCharacterReplaceDialog () {
+    closeCharacterReplaceDialog (): void {
         this.props.setToBeReplacedCharacterID(null);
     }
 
-    closeExportConvoDialog () {
+    closeExportConvoDialog (): void {
         this.props.setExportedConvoID(null);
     }
 
-    render () {
+    render (): JSX.Element {
         const {convos, currentConvoIndex, editedCharID, toBeReplacedCharID, exportedConvoID} = this.props;
         return (
             <div className={style['app']}>
@@ -79,7 +84,4 @@ class App extends Component {
     }
 }
 
-export default connect(
-    ['convos', 'currentConvoIndex', 'editedCharID', 'toBeReplacedCharID', 'exportedConvoID'],
-    {setEditedCharacterID, setToBeReplacedCharacterID, setExportedConvoID}
-)(App);
+export default connect(connectedKeys, connectedActions)(App);

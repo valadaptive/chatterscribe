@@ -1,8 +1,7 @@
 import style from './style.scss';
 import icons from '../../icons/icons.scss';
 
-import {Component} from 'preact';
-import {connect} from 'unistore/preact';
+import {Component, JSX} from 'preact';
 import classNames from 'classnames';
 
 import deleteCharacter from '../../actions/delete-character';
@@ -11,11 +10,19 @@ import setEditedCharacterID from '../../actions/set-edited-character-id';
 import setToBeReplacedCharacterID from '../../actions/set-to-be-replaced-character-id';
 
 import colorToHex from '../../util/color-to-hex';
+import {connect, InjectProps} from '../../util/store';
+import type {ID, Character} from '../../util/datatypes';
 
-const Character = ({char, active, onClick, onEdit, onDelete}) => (
+const CharacterListing = ({char, active, onClick, onEdit, onDelete}: {
+    char: Character,
+    active: boolean,
+    onClick?: (char: Character) => void,
+    onEdit?: (char: Character) => void,
+    onDelete?: (char: Character) => void,
+}): JSX.Element => (
     <div
         className={classNames(style['character'], {[style['active']]: active})}
-        onClick={onClick && (() => onClick(char))}
+        onClick={onClick && ((): void => onClick(char))}
     >
         <div
             className={style['character-name']}
@@ -27,7 +34,7 @@ const Character = ({char, active, onClick, onEdit, onDelete}) => (
                 icons['icon'],
                 icons['icon-button'],
                 icons['edit'])}
-            onClick={onEdit && (() => onEdit(char))}
+            onClick={onEdit && ((): void => onEdit(char))}
         />
         <div
             className={classNames(
@@ -36,13 +43,17 @@ const Character = ({char, active, onClick, onEdit, onDelete}) => (
                 icons['icon-button'],
                 icons['delete'],
                 {[icons['disabled']]: !onDelete})}
-            onClick={onDelete ? (() => onDelete(char)) : null}
+            onClick={onDelete ? ((): void => onDelete(char)) : undefined}
         />
     </div>
 );
 
-class CharacterList extends Component {
-    constructor (props) {
+const connectedKeys = ['chars', 'currentCharID', 'convos', 'currentConvoIndex'] as const;
+const connectedActions = {deleteCharacter, setCurrentCharacterID, setEditedCharacterID, setToBeReplacedCharacterID};
+type Props = InjectProps<{}, typeof connectedKeys, typeof connectedActions>;
+
+class CharacterList extends Component<Props> {
+    constructor (props: Props) {
         super(props);
 
         this.onClickCharacter = this.onClickCharacter.bind(this);
@@ -50,15 +61,15 @@ class CharacterList extends Component {
         this.onDeleteCharacter = this.onDeleteCharacter.bind(this);
     }
 
-    onClickCharacter (character) {
+    onClickCharacter (character: Character): void {
         this.props.setCurrentCharacterID(character.id);
     }
 
-    onEditCharacter (character) {
+    onEditCharacter (character: Character): void {
         this.props.setEditedCharacterID(character.id);
     }
 
-    onDeleteCharacter (character) {
+    onDeleteCharacter (character: Character): void {
         for (const convo of this.props.convos) {
             for (const message of convo.messages) {
                 if (message.authorID === character.id) {
@@ -71,10 +82,10 @@ class CharacterList extends Component {
         this.props.deleteCharacter(character.id);
     }
 
-    render () {
+    render (): JSX.Element {
         const {chars, currentCharID, convos, currentConvoIndex} = this.props;
 
-        const charIDsInConvo = new Set();
+        const charIDsInConvo = new Set<ID>();
 
         if (currentConvoIndex !== -1) {
             const currentConvo = convos[currentConvoIndex];
@@ -102,13 +113,13 @@ class CharacterList extends Component {
                         <div className={style['divider']}>Characters in current convo:</div>
                         <div className={style['character-sublist']}>
                             {charsInConvo.map(char =>
-                                <Character
+                                <CharacterListing
                                     key={char.id}
                                     char={char}
                                     active={char.id === currentCharID}
                                     onClick={this.onClickCharacter}
                                     onEdit={this.onEditCharacter}
-                                    onDelete={this.props.chars.length > 1 && this.onDeleteCharacter}
+                                    onDelete={this.props.chars.length > 1 ? this.onDeleteCharacter : undefined}
                                 />)}
                         </div>
                     </>
@@ -118,13 +129,13 @@ class CharacterList extends Component {
                         <div className={style['divider']}>Other characters:</div>
                         <div className={style['character-sublist']}>
                             {charsNotInConvo.map(char =>
-                                <Character
+                                <CharacterListing
                                     key={char.id}
                                     char={char}
                                     active={char.id === currentCharID}
                                     onClick={this.onClickCharacter}
                                     onEdit={this.onEditCharacter}
-                                    onDelete={this.props.chars.length > 1 && this.onDeleteCharacter}
+                                    onDelete={this.props.chars.length > 1 ? this.onDeleteCharacter : undefined}
                                 />)}
                         </div>
                     </>
@@ -134,7 +145,4 @@ class CharacterList extends Component {
     }
 }
 
-export default connect(
-    ['chars', 'currentCharID', 'convos', 'currentConvoIndex'],
-    {deleteCharacter, setCurrentCharacterID, setEditedCharacterID, setToBeReplacedCharacterID}
-)(CharacterList);
+export default connect(connectedKeys, connectedActions)(CharacterList);
