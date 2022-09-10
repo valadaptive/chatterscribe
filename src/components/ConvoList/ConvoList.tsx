@@ -1,8 +1,7 @@
 import style from './style.scss';
 import icons from '../../icons/icons.scss';
 
-import {Component, createRef} from 'preact';
-import {connect} from 'unistore/preact';
+import {Component, createRef, RefObject, JSX} from 'preact';
 import classNames from 'classnames';
 
 import createConvo from '../../actions/create-convo';
@@ -12,8 +11,27 @@ import setCurrentConvoIndex from '../../actions/set-current-convo-index';
 import setEditedConvo from '../../actions/set-edited-convo-id';
 import setExportedConvoID from '../../actions/set-exported-convo-id';
 
-class ConvoList extends Component {
-    constructor (props) {
+import {connect, InjectProps} from '../../util/store';
+import type {ID} from '../../util/datatypes';
+
+const connectedKeys = ['convos', 'currentConvoIndex', 'editedConvoID'] as const;
+const connectedActions = {
+    createConvo,
+    setCurrentConvoIndex,
+    setEditedConvo,
+    setConvoName,
+    deleteConvo,
+    setExportedConvoID
+};
+
+type Props = InjectProps<{
+    beforeMessage?: number
+}, typeof connectedKeys, typeof connectedActions>;
+
+class ConvoList extends Component<Props> {
+    editedConvoRef: RefObject<HTMLInputElement>;
+
+    constructor (props: Props) {
         super(props);
 
         this.onAddConvo = this.onAddConvo.bind(this);
@@ -25,45 +43,45 @@ class ConvoList extends Component {
         this.editedConvoRef = createRef();
     }
 
-    onAddConvo () {
+    onAddConvo (): void {
         this.props.createConvo();
         this.props.setEditedConvo();
     }
 
-    onClickConvo (index) {
+    onClickConvo (index: number): void {
         this.props.setCurrentConvoIndex(index);
     }
 
-    onExportConvo (id, event) {
+    onExportConvo (id: ID, event: Event): void {
         event.stopPropagation();
         this.props.setExportedConvoID(id);
     }
 
-    onEditConvo (id, event) {
+    onEditConvo (id: ID, event: Event): void {
         event.stopPropagation();
         this.props.setEditedConvo(id);
     }
 
-    onDeleteConvo (index, event) {
+    onDeleteConvo (index: number, event: Event): void {
         event.stopPropagation();
         this.props.deleteConvo(index);
     }
 
-    onConvoEditKeyPress (event) {
+    onConvoEditKeyPress (event: KeyboardEvent): void {
         if (event.code === 'Enter') {
             this.props.setEditedConvo(null);
         }
     }
 
-    onConvoEditBlur () {
+    onConvoEditBlur (): void {
         this.props.setEditedConvo(null);
     }
 
-    updateConvoName (id, event) {
-        this.props.setConvoName(id, event.target.value);
+    updateConvoName (id: ID, event: Event): void {
+        this.props.setConvoName(id, (event.target as HTMLInputElement).value);
     }
 
-    componentDidUpdate (prevProps) {
+    componentDidUpdate (prevProps: Props): void {
         if (this.props.editedConvoID &&
             prevProps.editedConvoID !== this.props.editedConvoID &&
             this.editedConvoRef.current) {
@@ -72,7 +90,7 @@ class ConvoList extends Component {
         }
     }
 
-    render () {
+    render (): JSX.Element {
         const {convos, currentConvoIndex} = this.props;
         return (
             <div className={style['convo-list']}>
@@ -128,7 +146,4 @@ class ConvoList extends Component {
     }
 }
 
-export default connect(
-    ['convos', 'currentConvoIndex', 'editedConvoID'],
-    {createConvo, setCurrentConvoIndex, setEditedConvo, setConvoName, deleteConvo, setExportedConvoID}
-)(ConvoList);
+export default connect(connectedKeys, connectedActions)(ConvoList);

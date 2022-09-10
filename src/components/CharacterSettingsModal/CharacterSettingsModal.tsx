@@ -1,31 +1,38 @@
 import style from './style.scss';
 
-import {Component} from 'preact';
-import {connect} from 'unistore/preact';
+import {Component, JSX} from 'preact';
 
 import updateCharacter from '../../actions/update-character';
 
 import colorToHex from '../../util/color-to-hex';
+import {connect, InjectProps} from '../../util/store';
 
-class CharacterSettingsModal extends Component {
-    constructor (props) {
+const connectedKeys = ['chars', 'editedCharID'] as const;
+const connectedActions = {updateCharacter};
+type Props = InjectProps<{}, typeof connectedKeys, typeof connectedActions>;
+
+class CharacterSettingsModal extends Component<Props> {
+    constructor (props: Props) {
         super(props);
 
         this.onCharacterNameChange = this.onCharacterNameChange.bind(this);
         this.onCharacterColorChange = this.onCharacterColorChange.bind(this);
     }
 
-    onCharacterNameChange (event) {
-        this.props.updateCharacter(this.props.editedCharID, {name: event.target.value});
+    onCharacterNameChange (event: Event): void {
+        this.props.updateCharacter(this.props.editedCharID, {name: (event.target as HTMLInputElement).value});
     }
 
-    onCharacterColorChange (event) {
-        this.props.updateCharacter(this.props.editedCharID, {color: parseInt(event.target.value.slice(1), 16)});
+    onCharacterColorChange (event: Event): void {
+        this.props.updateCharacter(this.props.editedCharID, {
+            color: parseInt((event.target as HTMLInputElement).value.slice(1), 16)
+        });
     }
 
-    render () {
+    render (): JSX.Element | null {
         const {editedCharID, chars} = this.props;
         const character = chars.find(char => char.id === editedCharID);
+        if (!character) return null;
         return (
             <div className={style['character-settings']}>
                 <div className={style['row']}>
@@ -51,4 +58,4 @@ class CharacterSettingsModal extends Component {
     }
 }
 
-export default connect(['chars', 'editedCharID'], {updateCharacter})(CharacterSettingsModal);
+export default connect(connectedKeys, connectedActions)(CharacterSettingsModal);

@@ -1,8 +1,7 @@
 import style from './style.scss';
 import icons from '../../icons/icons.scss';
 
-import {Component, createRef} from 'preact';
-import {connect} from 'unistore/preact';
+import {Component, createRef, RefObject, JSX} from 'preact';
 import classNames from 'classnames';
 
 import CommandBox from '../CommandBox/CommandBox';
@@ -10,26 +9,37 @@ import Message from '../Message/Message';
 
 import setInsertAboveMessageID from '../../actions/set-insert-above-message-id';
 
-class Messages extends Component {
-    constructor (props) {
+import {connect, InjectProps} from '../../util/store';
+import {Message as MessageType} from '../../util/datatypes';
+
+const connectedKeys = 'insertAboveMessageID';
+const connectedActions = {setInsertAboveMessageID};
+type Props = InjectProps<{
+    messages: MessageType[] | null
+}, typeof connectedKeys, typeof connectedActions>;
+
+class Messages extends Component<Props> {
+    lastMessageElem: RefObject<HTMLDivElement>;
+
+    constructor (props: Props) {
         super(props);
 
         this.lastMessageElem = createRef();
     }
 
-    componentDidUpdate (prevProps) {
+    componentDidUpdate (prevProps: Props): void {
         const messageAddedAtBottom = prevProps.messages && this.props.messages &&
         prevProps.messages.length + 1 === this.props.messages.length &&
         prevProps.messages[prevProps.messages.length - 1] !== this.props.messages[this.props.messages.length - 1];
 
         // Ideally, this would happen for messages added anywhere, but that would require creating a ref for every
         // message and arrays of refs are really hard to do correctly
-        if (messageAddedAtBottom) {
+        if (messageAddedAtBottom && this.lastMessageElem.current) {
             this.lastMessageElem.current.scrollIntoView();
         }
     }
 
-    render () {
+    render (): JSX.Element {
         const {messages, insertAboveMessageID, setInsertAboveMessageID} = this.props;
 
         const messageElems = [];
@@ -48,7 +58,7 @@ class Messages extends Component {
                                             icons['delete']
                                         )}
                                         title="Close"
-                                        onClick={() => setInsertAboveMessageID(null)}
+                                        onClick={(): unknown => setInsertAboveMessageID(null)}
                                     />
                                 </div>
                             </div>
@@ -63,7 +73,7 @@ class Messages extends Component {
                     key={message.id}
                     index={i}
                     // I could use forwardRef here but don't want to pull in preact/compat
-                    elemRef={i === messages.length - 1 ? this.lastMessageElem : null}
+                    elemRef={i === messages.length - 1 ? this.lastMessageElem : undefined}
                 />);
             }
         }
@@ -78,4 +88,4 @@ class Messages extends Component {
     }
 }
 
-export default connect(['insertAboveMessageID'], {setInsertAboveMessageID})(Messages);
+export default connect(connectedKeys, connectedActions)(Messages);

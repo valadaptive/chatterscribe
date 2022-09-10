@@ -1,4 +1,4 @@
-const saveToFile = (name, contents) => {
+const saveToFile = (name: string, contents: BlobPart): void => {
     const a = document.createElement('a');
     const url = URL.createObjectURL(new Blob([contents]));
 

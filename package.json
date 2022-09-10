@@ -54,7 +54,7 @@
     "classnames": "^2.3.1",
     "jtd": "^0.1.1",
     "lodash.merge": "^4.6.2",
-    "preact": "^10.1.0",
+    "preact": "^10.10.6",
     "unistore": "^3.5.2"
   }
 }

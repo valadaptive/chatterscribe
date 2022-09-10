@@ -1,4 +1,4 @@
-import {validate} from 'jtd';
+import {validate, ValidationError} from 'jtd';
 
 const schema = {
     properties: {
@@ -19,6 +19,6 @@ const schema = {
             color: {type: 'uint32'}
         }}}
     }
-};
+} as const;
 
-export default json => validate(schema, json);
+export default (json: unknown): ValidationError[] => validate(schema, json);

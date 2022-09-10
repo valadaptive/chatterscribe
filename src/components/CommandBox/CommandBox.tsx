@@ -1,15 +1,27 @@
 import style from './style.scss';
 
-import {Component} from 'preact';
-import {connect} from 'unistore/preact';
+import {Component, JSX} from 'preact';
 
 import createCharacter from '../../actions/create-character';
 import createMessage from '../../actions/create-message';
 import editMessage from '../../actions/edit-message';
 import setCurrentCharacterID from '../../actions/set-current-character-id';
 
-class CommandBox extends Component {
-    constructor (props) {
+import {connect, InjectProps} from '../../util/store';
+import type {Character} from '../../util/datatypes';
+
+const connectedKeys = ['currentCharID', 'chars', 'currentConvoIndex', 'convos'] as const;
+const connectedActions = {createMessage, editMessage, createCharacter, setCurrentCharacterID};
+type Props = InjectProps<{
+    beforeMessage?: number
+}, typeof connectedKeys, typeof connectedActions>;
+
+class CommandBox extends Component<Props> {
+    // TODO: store as state and re-render
+    tabResults: Character[] | null;
+    tabIndex: number;
+
+    constructor (props: Props) {
         super(props);
 
         this.tabResults = null;
@@ -19,28 +31,30 @@ class CommandBox extends Component {
         this.onKeyDown = this.onKeyDown.bind(this);
     }
 
-    onKeyDown (event) {
+    onKeyDown (event: KeyboardEvent): void {
         if (event.code === 'Tab') {
             event.preventDefault();
-            const contents = event.target.value.toLowerCase();
+            const target = event.target as HTMLTextAreaElement;
+            const contents = target.value.toLowerCase();
             if (contents.indexOf(':') === -1 && this.tabResults === null) {
                 this.tabResults = this.props.chars.filter(
                     character => character.name.toLowerCase().startsWith(contents));
                 this.tabIndex = 0;
             }
-            if (this.tabResults.length === 0) return;
+            if (!this.tabResults?.length) return;
             const character = this.tabResults[this.tabIndex];
             this.tabIndex = (this.tabIndex + 1) % this.tabResults.length;
-            event.target.value = `${character.name}: `;
+            target.value = `${character.name}: `;
         } else {
             this.tabResults = null;
         }
     }
 
-    onKeyPress (event) {
+    onKeyPress (event: KeyboardEvent): void {
         if (event.code === 'Enter' && !event.shiftKey) {
             event.preventDefault();
-            let command = event.target.value;
+            const target = event.target as HTMLTextAreaElement;
+            let command = target.value;
 
             // Parse off leading author specifier
             const colonMatch = /([^:]+):(?:\s+)(.+)/g.exec(command);
@@ -60,29 +74,28 @@ class CommandBox extends Component {
             const replaceMatch = /^s\/([^/]+)\/([^/]+)\/?$/.exec(command);
             if (replaceMatch) {
                 // if we added a new character, get it here
-                const {currentCharID, chars, currentConvoIndex, convos} = this.context.store.getState();
-                const currentCharacter = chars.find(char => char.id === currentCharID);
+                const {currentCharID, currentConvoIndex, convos} = this.props;
                 const {messages} = convos[currentConvoIndex];
                 for (let i = this.props.beforeMessage || messages.length - 1; i >= 0; i--) {
-                    if (messages[i].authorID === currentCharacter.id) {
+                    if (messages[i].authorID === currentCharID) {
                         this.props.editMessage(
                             messages[i].id,
                             messages[i].contents.split(replaceMatch[1]).join(replaceMatch[2])
                         );
-                        event.target.value = '';
+                        target.value = '';
                         return;
                     }
                 }
             }
 
-            event.target.value = '';
+            target.value = '';
             this.props.createMessage(command, this.props.beforeMessage);
         }
     }
 
-    render () {
+    render (): JSX.Element {
         return <textarea className={style['command-box']} onKeyPress={this.onKeyPress} onKeyDown={this.onKeyDown} />;
     }
 }
 
-export default connect(['chars'], {createMessage, editMessage, createCharacter, setCurrentCharacterID})(CommandBox);
+export default connect(connectedKeys, connectedActions)(CommandBox);

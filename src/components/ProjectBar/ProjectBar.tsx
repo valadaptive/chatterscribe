@@ -1,8 +1,7 @@
 import style from './style.scss';
 import icons from '../../icons/icons.scss';
 
-import {Component} from 'preact';
-import {connect} from 'unistore/preact';
+import {Component, JSX} from 'preact';
 import classNames from 'classnames';
 
 import loadState from '../../actions/load-state';
@@ -12,9 +11,18 @@ import saveState from '../../serialization/save-state';
 import validate from '../../serialization/validate';
 
 import saveToFile from '../../util/save-to-file';
+import {connect, InjectProps} from '../../util/store';
 
-class ProjectBar extends Component {
-    constructor (props) {
+const connectedKeys = ['version', 'projectName', 'convos', 'chars'] as const;
+const connectedActions = {loadState, setProjectName};
+type Props = InjectProps<{}, typeof connectedKeys, typeof connectedActions>;
+
+type State = {
+    error: Error | null
+};
+
+class ProjectBar extends Component<Props, State> {
+    constructor (props: Props) {
         super(props);
 
         this.state = {
@@ -27,25 +35,25 @@ class ProjectBar extends Component {
         this.closeError = this.closeError.bind(this);
     }
 
-    onInput (event) {
-        this.props.setProjectName(event.target.value);
+    onInput (event: Event): void {
+        this.props.setProjectName((event.target as HTMLInputElement).value);
     }
 
-    onLoad () {
+    onLoad (): void {
         const input = document.createElement('input');
         input.type = 'file';
         input.addEventListener('change', event => {
-            const files = event.target.files;
-            if (files.length > 0) {
+            const files = (event.target as HTMLInputElement).files;
+            if (files?.length) {
                 const reader = new FileReader();
                 reader.addEventListener('load', () => {
                     try {
-                        const result = JSON.parse(reader.result);
+                        const result = JSON.parse(reader.result as string) as unknown;
                         const errors = validate(result);
                         if (errors.length > 0) throw new Error('Invalid JSON');
                         this.props.loadState(result);
                     } catch (error) {
-                        this.setState({error});
+                        this.setState({error: error as Error});
                     }
                 });
                 reader.readAsText(files[0]);
@@ -54,16 +62,16 @@ class ProjectBar extends Component {
         input.click();
     }
 
-    onSave () {
+    onSave (): void {
         const {version, projectName, convos, chars} = this.props;
         saveToFile(`${projectName}.json`, saveState({version, projectName, convos, chars}));
     }
 
-    closeError () {
+    closeError (): void {
         this.setState({error: null});
     }
 
-    render () {
+    render (): JSX.Element {
         return (
             <div className={style['project-bar']}>
                 <input
@@ -97,4 +105,4 @@ class ProjectBar extends Component {
     }
 }
 
-export default connect(['version', 'projectName', 'convos', 'chars'], {loadState, setProjectName})(ProjectBar);
+export default connect(connectedKeys, connectedActions)(ProjectBar);

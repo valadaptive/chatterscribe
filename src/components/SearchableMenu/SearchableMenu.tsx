@@ -1,9 +1,30 @@
 import style from './style.scss';
 
-import {Component, createRef} from 'preact';
+import {Component, createRef, RefObject, JSX} from 'preact';
 
-class SearchableMenu extends Component {
-    constructor (props) {
+type MenuItem = {
+    id: string,
+    value: string
+};
+
+type Props<T extends readonly MenuItem[]> = {
+    items: T
+    x: number,
+    y: number,
+    onDismiss?: () => void,
+    onClickItem?: (result: T[number]['id']) => void
+};
+
+type State = {
+    query: string,
+    maxHeight: number | null,
+    y: number | null
+};
+
+class SearchableMenu<T extends readonly MenuItem[]> extends Component<Props<T>, State> {
+    searchRef: RefObject<HTMLInputElement>;
+
+    constructor (props: Props<T>) {
         super(props);
 
         this.state = {
@@ -17,21 +38,22 @@ class SearchableMenu extends Component {
         this.searchRef = createRef();
     }
 
-    onInput (event) {
-        this.setState({query: event.target.value});
+    onInput (event: Event): void {
+        this.setState({query: (event.target as HTMLInputElement).value});
     }
 
-    onFocusOut (event) {
-        if (!event.currentTarget.contains(event.relatedTarget) && this.props.onDismiss) {
+    onFocusOut (event: FocusEvent): void {
+        if (!(event.currentTarget as HTMLElement).contains(event.relatedTarget as HTMLElement) &&
+            this.props.onDismiss) {
             this.props.onDismiss();
         }
     }
 
-    componentDidMount () {
+    componentDidMount (): void {
         if (this.searchRef.current) this.searchRef.current.focus();
     }
 
-    render () {
+    render (): JSX.Element {
         return (
             <div
                 className={style['searchable-menu']}
@@ -40,8 +62,9 @@ class SearchableMenu extends Component {
                     left: `${this.props.x}px`,
                     maxHeight: `calc(100vh - ${this.props.y}px)`
                 }}
+                // eslint-disable-next-line react/no-unknown-property
                 onfocusout={this.onFocusOut}
-                tabIndex="0"
+                tabIndex={0}
             >
                 <div className={style['search-bar']}>
                     <input type="text" onInput={this.onInput} ref={this.searchRef}/>
@@ -53,7 +76,9 @@ class SearchableMenu extends Component {
                             <div
                                 className={style['item']}
                                 key={item.id}
-                                onClick={this.props.onClickItem ? this.props.onClickItem.bind(this, item.id) : null}
+                                onClick={this.props.onClickItem ?
+                                    this.props.onClickItem.bind(this, item.id) :
+                                    undefined}
                             >
                                 {item.value}
                             </div>

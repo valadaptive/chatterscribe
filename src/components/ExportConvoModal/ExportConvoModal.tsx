@@ -1,7 +1,6 @@
 import style from './style.scss';
 
-import {Component} from 'preact';
-import {connect} from 'unistore/preact';
+import {Component, JSX} from 'preact';
 
 import setWrapTextEnabled from '../../actions/export-convo-settings/set-wrap-text-enabled';
 import setWrapTextLength from '../../actions/export-convo-settings/set-wrap-text-length';
@@ -9,9 +8,22 @@ import setJustifyEnabled from '../../actions/export-convo-settings/set-justify-e
 import setJustifySide from '../../actions/export-convo-settings/set-justify-side';
 
 import saveToFile from '../../util/save-to-file';
+import {connect, InjectProps, StoreShape} from '../../util/store';
+import type {ID} from '../../util/datatypes';
 
-class ExportConvoModal extends Component {
-    constructor (props) {
+// eslint-disable-next-line @typescript-eslint/explicit-function-return-type
+const stateMapper = (state: StoreShape) => {
+    const {convos, exportedConvoID, chars} = state;
+    const {wrapTextEnabled, wrapTextLength, justifyEnabled, justifySide} = state.exportConvoSettings;
+    return {convos, exportedConvoID, chars, wrapTextEnabled, wrapTextLength, justifyEnabled, justifySide};
+};
+
+const connectedActions = {setWrapTextEnabled, setWrapTextLength, setJustifyEnabled, setJustifySide};
+
+type Props = InjectProps<{}, typeof stateMapper, typeof connectedActions>;
+
+class ExportConvoModal extends Component<Props> {
+    constructor (props: Props) {
         super(props);
 
         this.onChangeWrapTextEnabled = this.onChangeWrapTextEnabled.bind(this);
@@ -21,24 +33,24 @@ class ExportConvoModal extends Component {
         this.onExport = this.onExport.bind(this);
     }
 
-    onChangeWrapTextEnabled (event) {
-        this.props.setWrapTextEnabled(event.target.checked);
+    onChangeWrapTextEnabled (event: Event): void {
+        this.props.setWrapTextEnabled((event.target as HTMLInputElement).checked);
     }
 
-    onChangeWrapTextLength (event) {
-        const length = parseInt(event.target.value);
+    onChangeWrapTextLength (event: Event): void {
+        const length = parseInt((event.target as HTMLInputElement).value);
         if (Number.isFinite(length)) this.props.setWrapTextLength(length);
     }
 
-    onChangeJustifyEnabled (event) {
-        this.props.setJustifyEnabled(event.target.checked);
+    onChangeJustifyEnabled (event: Event): void {
+        this.props.setJustifyEnabled((event.target as HTMLInputElement).checked);
     }
 
-    onChangeJustifySide (event) {
-        this.props.setJustifySide(event.target.value);
+    onChangeJustifySide (event: Event): void {
+        this.props.setJustifySide((event.target as HTMLInputElement).value);
     }
 
-    onExport () {
+    onExport (): void {
         const {
             convos,
             exportedConvoID,
@@ -52,17 +64,18 @@ class ExportConvoModal extends Component {
         const convo = convos.find(convo => convo.id === exportedConvoID);
         if (!convo) return;
 
-        const charsInConvo = new Set();
+        const charsInConvo = new Set<ID>();
         for (const message of convo.messages) {
             charsInConvo.add(message.authorID);
         }
         const longestCharNameLength = Array.from(charsInConvo)
-            .reduce((prev, charID) => Math.max(prev, chars.find(char => char.id === charID).name.length), 0);
+            .reduce((prev: number, charID: ID): number =>
+                Math.max(prev, chars.find(char => char.id === charID)?.name.length ?? 0), 0);
 
         const lines = [];
 
         for (const message of convo.messages) {
-            const charName = chars.find(char => char.id === message.authorID).name;
+            const charName = chars.find(char => char.id === message.authorID)?.name ?? 'Unknown character';
             let start = `<${charName}> `;
             if (justifyEnabled) {
                 const justification = ' '.repeat(longestCharNameLength - charName.length);
@@ -99,7 +112,7 @@ class ExportConvoModal extends Component {
         saveToFile(`${convo.name}.txt`, convoStr);
     }
 
-    render () {
+    render (): JSX.Element | null {
         const {convos, exportedConvoID, wrapTextEnabled, wrapTextLength, justifyEnabled, justifySide} = this.props;
         const convo = convos.find(convo => convo.id === exportedConvoID);
         if (!convo) return null;
@@ -154,8 +167,4 @@ class ExportConvoModal extends Component {
     }
 }
 
-export default connect(state => {
-    const {convos, exportedConvoID, chars} = state;
-    const {wrapTextEnabled, wrapTextLength, justifyEnabled, justifySide} = state.exportConvoSettings;
-    return {convos, exportedConvoID, chars, wrapTextEnabled, wrapTextLength, justifyEnabled, justifySide};
-}, {setWrapTextEnabled, setWrapTextLength, setJustifyEnabled, setJustifySide})(ExportConvoModal);
+export default connect(stateMapper, connectedActions)(ExportConvoModal);

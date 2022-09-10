@@ -12,15 +12,19 @@ type ConnectedActionTypes<StoreShape, Actions> = {
 
 type ConnectedProps<
     StoreShape,
-    ConnectedKeys extends keyof StoreShape | readonly (keyof StoreShape)[],
+    ConnectedKeys extends keyof StoreShape | readonly (keyof StoreShape)[] | ((state: StoreShape) => unknown),
     connectedActions> =
-    Pick<StoreShape, ConnectedKeys extends readonly (keyof StoreShape)[] ? ConnectedKeys[number] : ConnectedKeys> &
+    (ConnectedKeys extends ((state: StoreShape) => infer T) ?
+        T :
+        Pick<StoreShape, ConnectedKeys extends readonly (keyof StoreShape)[] ?
+            ConnectedKeys[number] :
+            (ConnectedKeys extends keyof StoreShape ? ConnectedKeys : never)>) &
     ConnectedActionTypes<StoreShape, connectedActions>;
 
 export type {ConnectedProps};
 
 const betterConnect = (() => connect) as <StoreShape>() => <
-    ConnectedKeys extends keyof StoreShape | readonly (keyof StoreShape)[],
+    ConnectedKeys extends keyof StoreShape | readonly (keyof StoreShape)[] | ((state: StoreShape) => unknown),
     ConnectedActions = {}>(
     mapStateToProps: ConnectedKeys,
     actions?: ConnectedActions

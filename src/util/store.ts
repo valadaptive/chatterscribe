@@ -66,7 +66,11 @@ store.subscribe(store => {
 
 const connect = betterConnect<StoreShape>();
 
-export type InjectProps<Props, ConnectedKeys extends keyof StoreShape | readonly (keyof StoreShape)[], ConnectedActions = {}> =
+export type InjectProps<
+    Props,
+    ConnectedKeys extends keyof StoreShape | readonly (keyof StoreShape)[] | ((state: StoreShape) => unknown),
+    ConnectedActions = {}> =
 Props & ConnectedProps<StoreShape, ConnectedKeys, ConnectedActions>;
+export type {StoreShape};
 
 export {connect, store};

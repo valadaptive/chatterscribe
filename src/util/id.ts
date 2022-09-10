@@ -1,8 +1,8 @@
 const randomArr = new Uint32Array(2);
 
-export default () => {
+export default (): ID => {
     crypto.getRandomValues(randomArr);
     return ('0000000' + randomArr[0].toString(32)).slice(-7) + ('0000000' + randomArr[1].toString(32)).slice(-7);
 };
 
-export type ID = String;
+export type ID = string;

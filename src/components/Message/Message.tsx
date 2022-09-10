@@ -2,8 +2,7 @@
 import style from './style.scss';
 import icons from '../../icons/icons.scss';
 
-import {Component, createRef} from 'preact';
-import {connect} from 'unistore/preact';
+import {Component, createRef, RefObject, JSX} from 'preact';
 import classNames from 'classnames';
 
 import SearchableMenu from '../SearchableMenu/SearchableMenu';
@@ -15,9 +14,28 @@ import setEditedMessage from '../../actions/set-edited-message-id';
 import setInsertAboveMessageID from '../../actions/set-insert-above-message-id';
 
 import colorToHex from '../../util/color-to-hex';
+import {connect, InjectProps} from '../../util/store';
+import type {ID, Message as MessageType} from '../../util/datatypes';
 
-class Message extends Component {
-    constructor (props) {
+const connectedKeys = ['chars', 'editedMessageID', 'insertAboveMessageID'] as const;
+const connectedActions = {deleteMessage, editMessage, replaceMessageAuthor, setEditedMessage, setInsertAboveMessageID};
+
+type Props<T extends HTMLDivElement> = InjectProps<{
+    message: MessageType,
+    index: number,
+    elemRef?: RefObject<T>
+}, typeof connectedKeys, typeof connectedActions>;
+
+type State = {
+    authorMenuOpen: boolean,
+    authorMenuX: number,
+    authorMenuY: number
+};
+
+class Message<T extends HTMLDivElement> extends Component<Props<T>, State> {
+    contentsRef: RefObject<HTMLTextAreaElement>;
+
+    constructor (props: Props<T>) {
         super(props);
 
         this.state = {
@@ -37,36 +55,37 @@ class Message extends Component {
         this.onReplaceAuthor = this.onReplaceAuthor.bind(this);
     }
 
-    onInsertAbove () {
+    onInsertAbove (): void {
         this.props.setInsertAboveMessageID(this.props.insertAboveMessageID === this.props.message.id ?
             null :
             this.props.message.id);
     }
 
-    onMessageEdit () {
+    onMessageEdit (): void {
         this.props.setEditedMessage(this.props.editedMessageID === this.props.message.id ?
             null :
             this.props.message.id);
     }
 
-    onMessageDelete () {
+    onMessageDelete (): void {
         this.props.deleteMessage(this.props.index);
     }
 
-    onKeyPress (event) {
-        if (event.code === 'Enter' && !event.shiftKey) {
+    onKeyPress (event: KeyboardEvent): void {
+        if (event.code === 'Enter' && !event.shiftKey && this.contentsRef.current) {
             this.props.editMessage(this.props.message.id, this.contentsRef.current.value);
             this.props.setEditedMessage(null);
         }
     }
 
-    onBlur () {
+    onBlur (): void {
+        if (!this.contentsRef.current) return;
         this.props.editMessage(this.props.message.id, this.contentsRef.current.value);
         this.props.setEditedMessage(null);
     }
 
-    onClickAuthor (event) {
-        const {x, y, height} = event.target.getBoundingClientRect();
+    onClickAuthor (event: Event): void {
+        const {x, y, height} = (event.target as Element).getBoundingClientRect();
         this.setState(prevState => ({
             authorMenuOpen: !prevState.authorMenuOpen,
             authorMenuX: x,
@@ -74,16 +93,16 @@ class Message extends Component {
         }));
     }
 
-    onReplaceAuthor (newAuthorID) {
+    onReplaceAuthor (newAuthorID: ID): void {
         this.props.replaceMessageAuthor(this.props.message.id, newAuthorID);
         this.setState({authorMenuOpen: false});
     }
 
-    onDismissAuthorMenu () {
+    onDismissAuthorMenu (): void {
         this.setState({authorMenuOpen: false});
     }
 
-    componentDidUpdate (prevProps) {
+    componentDidUpdate (prevProps: Props<T>): void {
         if (prevProps.editedMessageID !== prevProps.message.id &&
             this.props.editedMessageID === this.props.message.id &&
             this.contentsRef.current) {
@@ -91,7 +110,7 @@ class Message extends Component {
         }
     }
 
-    render () {
+    render (): JSX.Element {
         const {message, chars, editedMessageID, elemRef} = this.props;
         const {id, authorID, contents} = message;
         const editable = id === editedMessageID;
@@ -115,7 +134,7 @@ class Message extends Component {
                                 className={style['message-edit-area']}
                                 onKeyPress={this.onKeyPress}
                                 onBlur={this.onBlur}
-                                tabIndex="0"
+                                tabIndex={0}
                                 ref={this.contentsRef}
                                 value={contents}
                             />
@@ -165,7 +184,4 @@ class Message extends Component {
     }
 }
 
-export default connect(
-    ['chars', 'editedMessageID', 'insertAboveMessageID'],
-    {deleteMessage, editMessage, replaceMessageAuthor, setEditedMessage, setInsertAboveMessageID}
-)(Message);
+export default connect(connectedKeys, connectedActions)(Message);

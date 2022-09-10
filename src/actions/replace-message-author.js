@@ -13,4 +13,6 @@ export default (state, id, authorID) => {
             }
         }
     }
+
+    return {};
 };
