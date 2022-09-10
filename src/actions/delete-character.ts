@@ -1,4 +1,7 @@
-export default (state, id, replacementID) => {
+import type {StoreShape} from '../util/store';
+import type {ID} from '../util/datatypes';
+
+export default (state: StoreShape, id: ID, replacementID?: ID): Partial<StoreShape> => {
     const charIndex = state.chars.findIndex(char => char.id === id);
     return {
         chars: state.chars.filter(char => char.id !== id),

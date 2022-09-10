@@ -47,7 +47,7 @@ class ExportConvoModal extends Component<Props> {
     }
 
     onChangeJustifySide (event: Event): void {
-        this.props.setJustifySide((event.target as HTMLInputElement).value);
+        this.props.setJustifySide((event.target as HTMLInputElement).value as 'left' | 'right');
     }
 
     onExport (): void {

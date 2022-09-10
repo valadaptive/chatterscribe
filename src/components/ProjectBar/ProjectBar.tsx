@@ -51,7 +51,9 @@ class ProjectBar extends Component<Props, State> {
                         const result = JSON.parse(reader.result as string) as unknown;
                         const errors = validate(result);
                         if (errors.length > 0) throw new Error('Invalid JSON');
-                        this.props.loadState(result);
+                        // eslint-disable-next-line max-len
+                        // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-argument
+                        this.props.loadState(result as any);
                     } catch (error) {
                         this.setState({error: error as Error});
                     }

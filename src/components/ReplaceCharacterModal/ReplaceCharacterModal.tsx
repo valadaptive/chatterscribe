@@ -34,6 +34,7 @@ class ReplaceCharacterModal extends Component<Props, State> {
     }
 
     replaceCharacter (): void {
+        if (!this.props.toBeReplacedCharID || !this.state.selectedCharacterID) return;
         this.props.replaceCharacter(this.props.toBeReplacedCharID, this.state.selectedCharacterID);
         this.props.deleteCharacter(this.props.toBeReplacedCharID, this.state.selectedCharacterID);
         this.props.setToBeReplacedCharacterID(null);

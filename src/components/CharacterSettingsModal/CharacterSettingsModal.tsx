@@ -20,10 +20,12 @@ class CharacterSettingsModal extends Component<Props> {
     }
 
     onCharacterNameChange (event: Event): void {
+        if (!this.props.editedCharID) return;
         this.props.updateCharacter(this.props.editedCharID, {name: (event.target as HTMLInputElement).value});
     }
 
     onCharacterColorChange (event: Event): void {
+        if (!this.props.editedCharID) return;
         this.props.updateCharacter(this.props.editedCharID, {
             color: parseInt((event.target as HTMLInputElement).value.slice(1), 16)
         });

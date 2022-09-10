@@ -1,8 +1,9 @@
 import id from '../util/id';
 import createConvo from './create-convo';
 import createCharacter from './create-character';
+import type {StoreShape} from '../util/store';
 
-export default (state, messageContents, beforeMessageIndex) => {
+export default (state: StoreShape, messageContents: string, beforeMessageIndex?: number): Partial<StoreShape> => {
     if (state.currentConvoIndex === -1) {
         state = {...state, ...createConvo(state)};
     }
@@ -17,7 +18,7 @@ export default (state, messageContents, beforeMessageIndex) => {
             if (i !== state.currentConvoIndex) return convo;
             const newMessages = convo.messages.slice(0);
             const newMessage = {
-                authorID: state.currentCharID,
+                authorID: state.currentCharID!,
                 contents: messageContents,
                 id: id()
             };

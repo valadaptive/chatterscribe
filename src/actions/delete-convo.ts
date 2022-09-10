@@ -1,4 +1,6 @@
-export default (state, index) => ({
+import type {StoreShape} from '../util/store';
+
+export default (state: StoreShape, index: number): Partial<StoreShape> => ({
     convos: state.convos.filter((_, i) => i !== index),
     currentConvoIndex: state.convos.length === 1 ?
         -1 :

@@ -1,5 +1,8 @@
+import type {StoreShape} from '../util/store';
+import type {ID} from '../util/datatypes';
+
 // TODO: this is n-squared, idiot
-export default (state, id, authorID) => {
+export default (state: StoreShape, id: ID, authorID: ID): Partial<StoreShape> => {
     for (let i = 0; i < state.convos.length; i++) {
         const convo = state.convos[i];
         for (let j = 0; j < convo.messages.length; j++) {

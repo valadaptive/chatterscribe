@@ -1,6 +1,7 @@
+import type {StoreShape} from '../util/store';
 import id from '../util/id';
 
-export default (state, characterName = 'New Character') => {
+export default (state: StoreShape, characterName = 'New Character'): Partial<StoreShape> => {
     const newCharID = id();
     return {
         chars: [...state.chars, {
