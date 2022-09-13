@@ -21,16 +21,16 @@ const CharacterListing = ({char, active, onClick, onEdit, onDelete}: {
     onDelete?: (char: Character) => void,
 }): JSX.Element => (
     <div
-        className={classNames(style['character'], {[style['active']]: active})}
+        className={classNames(style.character, {[style.active]: active})}
         onClick={onClick && ((): void => onClick(char))}
     >
         <div
-            className={style['character-name']}
+            className={style.characterName}
             style={`color: ${colorToHex(char.color)}`}
         >{char.name}</div>
         <div
             className={classNames(
-                style['edit'],
+                style.edit,
                 icons['icon'],
                 icons['icon-button'],
                 icons['edit'])}
@@ -38,7 +38,7 @@ const CharacterListing = ({char, active, onClick, onEdit, onDelete}: {
         />
         <div
             className={classNames(
-                style['delete'],
+                style.delete,
                 icons['icon'],
                 icons['icon-button'],
                 icons['delete'],
@@ -107,11 +107,11 @@ class CharacterList extends Component<Props> {
         }
 
         return (
-            <div className={style['character-list']}>
+            <div className={style.characterList}>
                 {charsInConvo.length > 0 &&
                     <>
-                        <div className={style['divider']}>Characters in current convo:</div>
-                        <div className={style['character-sublist']}>
+                        <div className={style.divider}>Characters in current convo:</div>
+                        <div className={style.characterSublist}>
                             {charsInConvo.map(char =>
                                 <CharacterListing
                                     key={char.id}
@@ -126,8 +126,8 @@ class CharacterList extends Component<Props> {
                 }
                 {charsNotInConvo.length > 0 &&
                     <>
-                        <div className={style['divider']}>Other characters:</div>
-                        <div className={style['character-sublist']}>
+                        <div className={style.divider}>Other characters:</div>
+                        <div className={style.characterSublist}>
                             {charsNotInConvo.map(char =>
                                 <CharacterListing
                                     key={char.id}

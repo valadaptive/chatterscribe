@@ -46,21 +46,21 @@ class App extends Component<Props> {
     render (): JSX.Element {
         const {convos, currentConvoIndex, editedCharID, toBeReplacedCharID, exportedConvoID} = this.props;
         return (
-            <div className={style['app']}>
-                <div className={style['project-bar-pane']}>
+            <div className={style.app}>
+                <div className={style.projectBarPane}>
                     <ProjectBar />
                 </div>
-                <div className={style['app-pane']}>
-                    <div className={style['convos-pane']}>
+                <div className={style.appPane}>
+                    <div className={style.convosPane}>
                         <ConvoList />
                     </div>
-                    <div className={style['messages-pane']}>
+                    <div className={style.messagesPane}>
                         <Messages messages={currentConvoIndex !== -1 ? convos[currentConvoIndex].messages : null} />
-                        <div className={style['command-box-pane']}>
+                        <div className={style.commandBoxPane}>
                             <CommandBox />
                         </div>
                     </div>
-                    <div className={style['characters-pane']}>
+                    <div className={style.charactersPane}>
                         <CharacterList />
                     </div>
                 </div>

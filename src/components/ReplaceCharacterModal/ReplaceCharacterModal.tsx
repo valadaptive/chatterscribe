@@ -43,10 +43,10 @@ class ReplaceCharacterModal extends Component<Props, State> {
     render (): JSX.Element {
         const {chars, toBeReplacedCharID} = this.props;
         return (
-            <div className={style['replace-character']}>
-                <div className={style['row']}>
-                    <div className={style['label']}>
-                        Replace character <span className={style['old-character-name']}> with:</span>
+            <div className={style.replaceCharacter}>
+                <div className={style.row}>
+                    <div className={style.label}>
+                        Replace character <span className={style.oldCharacterName}> with:</span>
                     </div>
                     <select
                         onChange={this.selectCharacter}

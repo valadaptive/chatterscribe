@@ -118,9 +118,9 @@ class ExportConvoModal extends Component<Props> {
         if (!convo) return null;
 
         return (
-            <div className={style['export-modal']}>
-                <div className={style['export-title']}>Export {`"${convo.name}"`}</div>
-                <div className={style['row']}>
+            <div className={style.exportModal}>
+                <div className={style.exportTitle}>Export {`"${convo.name}"`}</div>
+                <div className={style.row}>
                     <label><input
                         type="checkbox"
                         checked={wrapTextEnabled}
@@ -134,7 +134,7 @@ class ExportConvoModal extends Component<Props> {
                         value={wrapTextLength}
                     /> chars
                 </div>
-                <div className={style['row']}>
+                <div className={style.row}>
                     <label><input
                         type="checkbox"
                         checked={justifyEnabled}
@@ -159,7 +159,7 @@ class ExportConvoModal extends Component<Props> {
                         /> Right
                     </label>
                 </div>
-                <div className={style['row']}>
+                <div className={style.row}>
                     <button onClick={this.onExport}>Export</button>
                 </div>
             </div>
