@@ -93,15 +93,15 @@ class ConvoList extends Component<Props> {
     render (): JSX.Element {
         const {convos, currentConvoIndex} = this.props;
         return (
-            <div className={style['convo-list']}>
-                <div className={style['convos']}>
+            <div className={style.convoList}>
+                <div className={style.convos}>
                     {convos.map((convo, i) => (
                         <div
-                            className={classNames(style['convo'], {[style['active']]: currentConvoIndex === i})}
+                            className={classNames(style.convo, {[style.active]: currentConvoIndex === i})}
                             key={convo.id}
                             onClick={this.onClickConvo.bind(this, i)}
                         >
-                            <div className={style['convo-name']}>{this.props.editedConvoID === convo.id ?
+                            <div className={style.convoName}>{this.props.editedConvoID === convo.id ?
                                 <input
                                     type="text"
                                     value={convo.name}
@@ -138,7 +138,7 @@ class ConvoList extends Component<Props> {
                         </div>
                     ))}
                 </div>
-                <div className={style['add-convo-wrapper']}>
+                <div className={style.addConvoWrapper}>
                     <button onClick={this.onAddConvo}>Add Convo</button>
                 </div>
             </div>

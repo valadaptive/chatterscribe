@@ -7,9 +7,9 @@ const Modal = ({onClose, children}: {
     children: ComponentChildren
 }): JSX.Element => (
     <>
-        <div className={style['modal-bg']} onClick={onClose} />
-        <div className={style['modal-positioner']}>
-            <div className={style['modal']}>{children}</div>
+        <div className={style.modalBg} onClick={onClose} />
+        <div className={style.modalPositioner}>
+            <div className={style.modal}>{children}</div>
         </div>
     </>
 );

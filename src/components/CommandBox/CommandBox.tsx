@@ -94,7 +94,7 @@ class CommandBox extends Component<Props> {
     }
 
     render (): JSX.Element {
-        return <textarea className={style['command-box']} onKeyPress={this.onKeyPress} onKeyDown={this.onKeyDown} />;
+        return <textarea className={style.commandBox} onKeyPress={this.onKeyPress} onKeyDown={this.onKeyDown} />;
     }
 }
 

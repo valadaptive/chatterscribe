@@ -75,26 +75,26 @@ class ProjectBar extends Component<Props, State> {
 
     render (): JSX.Element {
         return (
-            <div className={style['project-bar']}>
+            <div className={style.projectBar}>
                 <input
-                    className={style['project-name']}
+                    className={style.projectName}
                     type="text"
                     value={this.props.projectName}
                     onInput={this.onInput}
                 />
                 <div
-                    className={classNames(style['button'], icons['icon'], icons['icon-button'], icons['save'])}
+                    className={classNames(style.button, icons['icon'], icons['icon-button'], icons['save'])}
                     title="Save"
                     onClick={this.onSave}
                 />
                 <div
-                    className={classNames(style['button'], icons['icon'], icons['icon-button'], icons['load'])}
+                    className={classNames(style.button, icons['icon'], icons['icon-button'], icons['load'])}
                     title="Load"
                     onClick={this.onLoad}
                 />
                 {this.state.error ?
-                    <div className={style['error']}>
-                        <span className={style['error-message']}>{this.state.error.message}</span>
+                    <div className={style.error}>
+                        <span className={style.errorMessage}>{this.state.error.message}</span>
                         <div
                             className={classNames(icons['icon'], icons['icon-button'], icons['delete'])}
                             onClick={this.closeError}

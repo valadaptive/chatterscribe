@@ -48,9 +48,9 @@ class Messages extends Component<Props> {
                 const message = messages[i];
                 if (insertAboveMessageID === message.id) {
                     messageElems.push(
-                        <div className={style['insert-box']}>
-                            <div className={style['close-wrapper']}>
-                                <div className={style['close-positioner']}>
+                        <div className={style.insertBox}>
+                            <div className={style.closeWrapper}>
+                                <div className={style.closePositioner}>
                                     <div
                                         className={classNames(
                                             icons['icon'],
@@ -62,7 +62,7 @@ class Messages extends Component<Props> {
                                     />
                                 </div>
                             </div>
-                            <div className={style['command-box-wrapper']}>
+                            <div className={style.commandBoxWrapper}>
                                 <CommandBox beforeMessage={i}/>
                             </div>
                         </div>
@@ -79,8 +79,8 @@ class Messages extends Component<Props> {
         }
 
         return (
-            <div className={style['messages']}>
-                <div className={style['messages-inner']}>
+            <div className={style.messages}>
+                <div className={style.messagesInner}>
                     {messageElems}
                 </div>
             </div>

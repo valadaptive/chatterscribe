@@ -117,21 +117,21 @@ class Message<T extends HTMLDivElement> extends Component<Props<T>, State> {
         const char = chars.find(char => char.id === authorID) || {color: 0xffffff, name: 'Unknown Character'};
 
         return (
-            <div className={style['message']} ref={elemRef}>
+            <div className={style.message} ref={elemRef}>
                 <div
-                    className={style['author']}
+                    className={style.author}
                     style={`color: ${colorToHex(char.color)}`}
                     onClick={this.onClickAuthor}
                 >
                     {char.name}
                 </div>
                 <div
-                    className={classNames(style['contents'], {[style['editable']]: editable})}
+                    className={classNames(style.contents, {[style.editable]: editable})}
                 >
                     {editable ?
-                        <div className={style['message-edit-wrapper']}>
+                        <div className={style.messageEditWrapper}>
                             <textarea
-                                className={style['message-edit-area']}
+                                className={style.messageEditArea}
                                 onKeyPress={this.onKeyPress}
                                 onBlur={this.onBlur}
                                 tabIndex={0}
@@ -141,7 +141,7 @@ class Message<T extends HTMLDivElement> extends Component<Props<T>, State> {
                         </div> :
                         contents}
                 </div>
-                <div className={style['buttons']}>
+                <div className={style.buttons}>
                     <div
                         className={classNames(
                             icons['icon'],

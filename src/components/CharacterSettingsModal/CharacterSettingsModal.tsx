@@ -36,21 +36,21 @@ class CharacterSettingsModal extends Component<Props> {
         const character = chars.find(char => char.id === editedCharID);
         if (!character) return null;
         return (
-            <div className={style['character-settings']}>
-                <div className={style['row']}>
-                    <div className={style['label']}>Character name</div>
+            <div className={style.characterSettings}>
+                <div className={style.row}>
+                    <div className={style.label}>Character name</div>
                     <input
                         type="text"
-                        className={style['control']}
+                        className={style.control}
                         value={character.name}
                         onChange={this.onCharacterNameChange}
                     />
                 </div>
-                <div className={style['row']}>
-                    <div className={style['label']}>Character color</div>
+                <div className={style.row}>
+                    <div className={style.label}>Character color</div>
                     <input
                         type="color"
-                        className={style['control']}
+                        className={style.control}
                         value={colorToHex(character.color)}
                         onChange={this.onCharacterColorChange}
                     />

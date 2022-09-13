@@ -56,7 +56,7 @@ class SearchableMenu<T extends readonly MenuItem[]> extends Component<Props<T>, 
     render (): JSX.Element {
         return (
             <div
-                className={style['searchable-menu']}
+                className={style.searchableMenu}
                 style={{
                     top: `${this.props.y}px`,
                     left: `${this.props.x}px`,
@@ -66,15 +66,15 @@ class SearchableMenu<T extends readonly MenuItem[]> extends Component<Props<T>, 
                 onfocusout={this.onFocusOut}
                 tabIndex={0}
             >
-                <div className={style['search-bar']}>
+                <div className={style.searchBar}>
                     <input type="text" onInput={this.onInput} ref={this.searchRef}/>
                 </div>
-                <div className={style['items']}>
+                <div className={style.items}>
                     {this.props.items.map(item => (
                         item.value.toLowerCase().indexOf(this.state.query) === -1 ?
                             null :
                             <div
-                                className={style['item']}
+                                className={style.item}
                                 key={item.id}
                                 onClick={this.props.onClickItem ?
                                     this.props.onClickItem.bind(this, item.id) :
