@@ -1,6 +1,6 @@
 import './forms.scss';
 
-import {render} from 'preact';
+import {render, JSX} from 'preact';
 import {Provider} from 'unistore/preact';
 
 import App from './components/App/App';
@@ -8,7 +8,7 @@ import App from './components/App/App';
 import {store} from './util/store';
 
 
-const Main = () => (
+const Main = (): JSX.Element => (
     <Provider store={store}>
         <App />
     </Provider>

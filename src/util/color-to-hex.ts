@@ -1,1 +1,1 @@
-export default (color: number) => '#' + ('000000' + color.toString(16)).slice(-6);
+export default (color: number): string => '#' + ('000000' + color.toString(16)).slice(-6);
