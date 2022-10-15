@@ -61,8 +61,8 @@ class ExportConvoModal extends Component<Props> {
             justifySide
         } = this.props;
 
-        const convo = convos.find(convo => convo.id === exportedConvoID);
-        if (!convo) return;
+        if (!exportedConvoID) return;
+        const convo = convos[exportedConvoID];
 
         const charsInConvo = new Set<ID>();
         for (const message of convo.messages) {
@@ -114,8 +114,8 @@ class ExportConvoModal extends Component<Props> {
 
     render (): JSX.Element | null {
         const {convos, exportedConvoID, wrapTextEnabled, wrapTextLength, justifyEnabled, justifySide} = this.props;
-        const convo = convos.find(convo => convo.id === exportedConvoID);
-        if (!convo) return null;
+        if (!exportedConvoID) return null;
+        const convo = convos[exportedConvoID];
 
         return (
             <div className={style.exportModal}>

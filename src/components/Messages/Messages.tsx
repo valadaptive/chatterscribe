@@ -10,12 +10,12 @@ import Message from '../Message/Message';
 import setInsertAboveMessageID from '../../actions/set-insert-above-message-id';
 
 import {connect, InjectProps} from '../../util/store';
-import {Message as MessageType} from '../../util/datatypes';
+import {Convo} from '../../util/datatypes';
 
 const connectedKeys = 'insertAboveMessageID';
 const connectedActions = {setInsertAboveMessageID};
 type Props = InjectProps<{
-    messages: MessageType[] | null
+    convo: Convo | undefined,
 }, typeof connectedKeys, typeof connectedActions>;
 
 class Messages extends Component<Props> {
@@ -28,9 +28,11 @@ class Messages extends Component<Props> {
     }
 
     componentDidUpdate (prevProps: Props): void {
-        const messageAddedAtBottom = prevProps.messages && this.props.messages &&
-        prevProps.messages.length + 1 === this.props.messages.length &&
-        prevProps.messages[prevProps.messages.length - 1] !== this.props.messages[this.props.messages.length - 1];
+        const prevMessages = prevProps.convo?.messages;
+        const currMessages = this.props.convo?.messages;
+        const messageAddedAtBottom = prevMessages && currMessages &&
+        prevMessages.length + 1 === currMessages.length &&
+        prevMessages[prevMessages.length - 1] !== currMessages[currMessages.length - 1];
 
         // Ideally, this would happen for messages added anywhere, but that would require creating a ref for every
         // message and arrays of refs are really hard to do correctly
@@ -40,7 +42,8 @@ class Messages extends Component<Props> {
     }
 
     render (): JSX.Element {
-        const {messages, insertAboveMessageID, setInsertAboveMessageID} = this.props;
+        const {convo, insertAboveMessageID, setInsertAboveMessageID} = this.props;
+        const messages = convo?.messages;
 
         const messageElems = [];
         if (messages) {
@@ -69,6 +72,7 @@ class Messages extends Component<Props> {
                     );
                 }
                 messageElems.push(<Message
+                    convoID={convo.id}
                     message={message}
                     key={message.id}
                     index={i}

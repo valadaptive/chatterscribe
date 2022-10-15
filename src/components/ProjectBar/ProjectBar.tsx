@@ -66,7 +66,7 @@ class ProjectBar extends Component<Props, State> {
 
     onSave (): void {
         const {version, projectName, convos, chars} = this.props;
-        saveToFile(`${projectName}.json`, saveState({version, projectName, convos, chars}));
+        saveToFile(`${projectName}.json`, saveState({version, projectName, convos: Array.from(Object.values(convos)), chars}));
     }
 
     closeError (): void {

@@ -49,7 +49,7 @@ const CharacterListing = ({char, active, onClick, onEdit, onDelete}: {
     </div>
 );
 
-const connectedKeys = ['chars', 'currentCharID', 'convos', 'currentConvoIndex'] as const;
+const connectedKeys = ['chars', 'currentCharID', 'convos', 'currentConvoID'] as const;
 const connectedActions = {deleteCharacter, setCurrentCharacterID, setEditedCharacterID, setToBeReplacedCharacterID};
 type Props = InjectProps<{}, typeof connectedKeys, typeof connectedActions>;
 
@@ -57,7 +57,7 @@ const CharacterList = ({
     chars,
     currentCharID,
     convos,
-    currentConvoIndex,
+    currentConvoID,
     deleteCharacter,
     setCurrentCharacterID,
     setEditedCharacterID,
@@ -66,10 +66,12 @@ const CharacterList = ({
     const {charsInConvo, charsNotInConvo} = useMemo(() => {
         const charIDsInConvo = new Set<ID>();
 
-        if (currentConvoIndex !== -1) {
-            const currentConvo = convos[currentConvoIndex];
-            for (const message of currentConvo.messages) {
-                charIDsInConvo.add(message.authorID);
+        if (currentConvoID !== null) {
+            const currentConvo = convos[currentConvoID];
+            if (currentConvo) {
+                for (const message of currentConvo.messages) {
+                    charIDsInConvo.add(message.authorID);
+                }
             }
         }
 
@@ -84,7 +86,7 @@ const CharacterList = ({
         }
 
         return {charsInConvo, charsNotInConvo};
-    }, [currentConvoIndex, convos, chars]);
+    }, [currentConvoID, convos, chars]);
 
     const onClickCharacter = useCallback((character: Character) => {
         setCurrentCharacterID(character.id);
@@ -95,7 +97,8 @@ const CharacterList = ({
     }, [setEditedCharacterID]);
 
     const onDeleteCharacter = useCallback((character: Character) => {
-        for (const convo of convos) {
+        for (const convo of Object.values(convos)) {
+            if (!convo) continue;
             for (const message of convo.messages) {
                 if (message.authorID === character.id) {
                     setToBeReplacedCharacterID(character.id);

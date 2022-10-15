@@ -1,21 +1,11 @@
 import type {StoreShape} from '../util/store';
 import type {ID} from '../util/datatypes';
 
-// TODO: this is n-squared, idiot
-export default (state: StoreShape, id: ID, authorID: ID): Partial<StoreShape> => {
-    for (let i = 0; i < state.convos.length; i++) {
-        const convo = state.convos[i];
-        for (let j = 0; j < convo.messages.length; j++) {
-            const message = convo.messages[j];
-            if (message.id === id) {
-                const newConvos = state.convos.slice(0);
-                const newMessages = convo.messages.slice(0);
-                newMessages[j] = {...message, authorID};
-                newConvos[i] = {...convo, messages: newMessages};
-                return {convos: newConvos};
-            }
-        }
-    }
+export default (state: StoreShape, convoID: ID, index: number, authorID: ID): Partial<StoreShape> => {
+    const convo = state.convos[convoID];
+    if (!convo) return {};
+    const newMessages = convo.messages.slice(0);
+    newMessages[index] = {...newMessages[index], authorID};
 
-    return {};
+    return {convos: {...state.convos, [convoID]: {...convo, messages: newMessages}}};
 };

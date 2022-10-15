@@ -18,7 +18,7 @@ import setExportedConvoID from '../../actions/set-exported-convo-id';
 
 import {connect, InjectProps} from '../../util/store';
 
-const connectedKeys = ['convos', 'currentConvoIndex', 'editedCharID', 'toBeReplacedCharID', 'exportedConvoID'] as const;
+const connectedKeys = ['convos', 'currentConvoID', 'editedCharID', 'toBeReplacedCharID', 'exportedConvoID'] as const;
 const connectedActions = {setEditedCharacterID, setToBeReplacedCharacterID, setExportedConvoID};
 type Props = InjectProps<{}, typeof connectedKeys, typeof connectedActions>;
 
@@ -44,7 +44,7 @@ class App extends Component<Props> {
     }
 
     render (): JSX.Element {
-        const {convos, currentConvoIndex, editedCharID, toBeReplacedCharID, exportedConvoID} = this.props;
+        const {convos, currentConvoID, editedCharID, toBeReplacedCharID, exportedConvoID} = this.props;
         return (
             <div className={style.app}>
                 <div className={style.projectBarPane}>
@@ -55,7 +55,7 @@ class App extends Component<Props> {
                         <ConvoList />
                     </div>
                     <div className={style.messagesPane}>
-                        <Messages messages={currentConvoIndex !== -1 ? convos[currentConvoIndex].messages : null} />
+                        <Messages convo={currentConvoID !== null ? convos[currentConvoID] : undefined} />
                         <div className={style.commandBoxPane}>
                             <CommandBox />
                         </div>

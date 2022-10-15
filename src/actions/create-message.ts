@@ -4,7 +4,7 @@ import createCharacter from './create-character';
 import type {StoreShape} from '../util/store';
 
 export default (state: StoreShape, messageContents: string, beforeMessageIndex?: number): Partial<StoreShape> => {
-    if (state.currentConvoIndex === -1) {
+    if (state.currentConvoID === null) {
         state = {...state, ...createConvo(state)};
     }
 
@@ -12,25 +12,28 @@ export default (state: StoreShape, messageContents: string, beforeMessageIndex?:
         state = {...state, ...createCharacter(state)};
     }
 
+    // TODO: pass in currentConvoID or convo
+    const convo = state.convos[state.currentConvoID!];
+    if (!convo) return {};
+    const newMessages = convo.messages.slice(0);
+    const newMessage = {
+        authorID: state.currentCharID!,
+        contents: messageContents,
+        id: id()
+    };
+    if (typeof beforeMessageIndex === 'number') {
+        newMessages.splice(beforeMessageIndex, 0, newMessage);
+    } else {
+        newMessages.push(newMessage);
+    }
+
     return {
         ...state,
-        convos: state.convos.map((convo, i) => {
-            if (i !== state.currentConvoIndex) return convo;
-            const newMessages = convo.messages.slice(0);
-            const newMessage = {
-                authorID: state.currentCharID!,
-                contents: messageContents,
-                id: id()
-            };
-            if (typeof beforeMessageIndex === 'number') {
-                newMessages.splice(beforeMessageIndex, 0, newMessage);
-            } else {
-                newMessages.push(newMessage);
+        convos: {
+            ...state.convos,
+            [state.currentConvoID!]: {
+                ...convo, messages: newMessages
             }
-            return {
-                ...convo,
-                messages: newMessages
-            };
-        })
+        }
     };
 };

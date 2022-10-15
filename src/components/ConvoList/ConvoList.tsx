@@ -7,17 +7,17 @@ import classNames from 'classnames';
 import createConvo from '../../actions/create-convo';
 import deleteConvo from '../../actions/delete-convo';
 import setConvoName from '../../actions/set-convo-name';
-import setCurrentConvoIndex from '../../actions/set-current-convo-index';
+import setCurrentConvoID from '../../actions/set-current-convo-id';
 import setEditedConvo from '../../actions/set-edited-convo-id';
 import setExportedConvoID from '../../actions/set-exported-convo-id';
 
 import {connect, InjectProps} from '../../util/store';
 import type {ID} from '../../util/datatypes';
 
-const connectedKeys = ['convos', 'currentConvoIndex', 'editedConvoID'] as const;
+const connectedKeys = ['convos', 'convoIDs', 'currentConvoID', 'editedConvoID'] as const;
 const connectedActions = {
     createConvo,
-    setCurrentConvoIndex,
+    setCurrentConvoID,
     setEditedConvo,
     setConvoName,
     deleteConvo,
@@ -48,8 +48,8 @@ class ConvoList extends Component<Props> {
         this.props.setEditedConvo();
     }
 
-    onClickConvo (index: number): void {
-        this.props.setCurrentConvoIndex(index);
+    onClickConvo (id: ID): void {
+        this.props.setCurrentConvoID(id);
     }
 
     onExportConvo (id: ID, event: Event): void {
@@ -62,9 +62,9 @@ class ConvoList extends Component<Props> {
         this.props.setEditedConvo(id);
     }
 
-    onDeleteConvo (index: number, event: Event): void {
+    onDeleteConvo (id: ID, event: Event): void {
         event.stopPropagation();
-        this.props.deleteConvo(index);
+        this.props.deleteConvo(id);
     }
 
     onConvoEditKeyPress (event: KeyboardEvent): void {
@@ -91,15 +91,16 @@ class ConvoList extends Component<Props> {
     }
 
     render (): JSX.Element {
-        const {convos, currentConvoIndex} = this.props;
+        const {convos, convoIDs, currentConvoID} = this.props;
         return (
             <div className={style.convoList}>
                 <div className={style.convos}>
-                    {convos.map((convo, i) => (
-                        <div
-                            className={classNames(style.convo, {[style.active]: currentConvoIndex === i})}
+                    {convoIDs.map(convoID => {
+                        const convo = convos[convoID];
+                        return <div
+                            className={classNames(style.convo, {[style.active]: currentConvoID === convo.id})}
                             key={convo.id}
-                            onClick={this.onClickConvo.bind(this, i)}
+                            onClick={this.onClickConvo.bind(this, convo.id)}
                         >
                             <div className={style.convoName}>{this.props.editedConvoID === convo.id ?
                                 <input
@@ -133,10 +134,10 @@ class ConvoList extends Component<Props> {
                                     icons['icon-button'],
                                     icons['delete'])
                                 }
-                                onClick={this.onDeleteConvo.bind(this, i)}
+                                onClick={this.onDeleteConvo.bind(this, convo.id)}
                             />
-                        </div>
-                    ))}
+                        </div>;
+                    })}
                 </div>
                 <div className={style.addConvoWrapper}>
                     <button onClick={this.onAddConvo}>Add Convo</button>

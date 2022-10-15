@@ -10,7 +10,7 @@ import setCurrentCharacterID from '../../actions/set-current-character-id';
 import {connect, InjectProps} from '../../util/store';
 import type {Character} from '../../util/datatypes';
 
-const connectedKeys = ['currentCharID', 'chars', 'currentConvoIndex', 'convos'] as const;
+const connectedKeys = ['currentCharID', 'chars', 'currentConvoID', 'convos'] as const;
 const connectedActions = {createMessage, editMessage, createCharacter, setCurrentCharacterID};
 type Props = InjectProps<{
     beforeMessage?: number
@@ -74,12 +74,13 @@ class CommandBox extends Component<Props> {
             const replaceMatch = /^s\/([^/]+)\/([^/]+)\/?$/.exec(command);
             if (replaceMatch) {
                 // if we added a new character, get it here
-                const {currentCharID, currentConvoIndex, convos} = this.props;
-                const {messages} = convos[currentConvoIndex];
+                const {currentCharID, currentConvoID, convos} = this.props;
+                const {messages} = convos[currentConvoID!];
                 for (let i = this.props.beforeMessage || messages.length - 1; i >= 0; i--) {
                     if (messages[i].authorID === currentCharID) {
                         this.props.editMessage(
-                            messages[i].id,
+                            currentConvoID!,
+                            i,
                             messages[i].contents.split(replaceMatch[1]).join(replaceMatch[2])
                         );
                         target.value = '';

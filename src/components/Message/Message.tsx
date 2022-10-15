@@ -22,6 +22,7 @@ const connectedActions = {deleteMessage, editMessage, replaceMessageAuthor, setE
 
 type Props<T extends HTMLDivElement> = InjectProps<{
     message: MessageType,
+    convoID: ID,
     index: number,
     elemRef?: RefObject<T>
 }, typeof connectedKeys, typeof connectedActions>;
@@ -73,14 +74,14 @@ class Message<T extends HTMLDivElement> extends Component<Props<T>, State> {
 
     onKeyPress (event: KeyboardEvent): void {
         if (event.code === 'Enter' && !event.shiftKey && this.contentsRef.current) {
-            this.props.editMessage(this.props.message.id, this.contentsRef.current.value);
+            this.props.editMessage(this.props.convoID, this.props.index, this.contentsRef.current.value);
             this.props.setEditedMessage(null);
         }
     }
 
     onBlur (): void {
         if (!this.contentsRef.current) return;
-        this.props.editMessage(this.props.message.id, this.contentsRef.current.value);
+        this.props.editMessage(this.props.convoID, this.props.index, this.contentsRef.current.value);
         this.props.setEditedMessage(null);
     }
 
@@ -94,7 +95,7 @@ class Message<T extends HTMLDivElement> extends Component<Props<T>, State> {
     }
 
     onReplaceAuthor (newAuthorID: ID): void {
-        this.props.replaceMessageAuthor(this.props.message.id, newAuthorID);
+        this.props.replaceMessageAuthor(this.props.convoID, this.props.index, newAuthorID);
         this.setState({authorMenuOpen: false});
     }
 
