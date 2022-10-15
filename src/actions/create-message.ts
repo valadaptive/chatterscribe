@@ -14,7 +14,6 @@ export default (state: StoreShape, messageContents: string, beforeMessageIndex?:
 
     // TODO: pass in currentConvoID or convo
     const convo = state.convos[state.currentConvoID!];
-    if (!convo) return {};
     const newMessages = convo.messages.slice(0);
     const newMessage = {
         authorID: state.currentCharID!,

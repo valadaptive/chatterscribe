@@ -68,10 +68,8 @@ const CharacterList = ({
 
         if (currentConvoID !== null) {
             const currentConvo = convos[currentConvoID];
-            if (currentConvo) {
-                for (const message of currentConvo.messages) {
-                    charIDsInConvo.add(message.authorID);
-                }
+            for (const message of currentConvo.messages) {
+                charIDsInConvo.add(message.authorID);
             }
         }
 
@@ -98,7 +96,6 @@ const CharacterList = ({
 
     const onDeleteCharacter = useCallback((character: Character) => {
         for (const convo of Object.values(convos)) {
-            if (!convo) continue;
             for (const message of convo.messages) {
                 if (message.authorID === character.id) {
                     setToBeReplacedCharacterID(character.id);
