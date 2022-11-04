@@ -1,7 +1,8 @@
 import style from './style.scss';
 import icons from '../../icons/icons.scss';
 
-import {Component, JSX} from 'preact';
+import type {JSX} from 'preact';
+import {useState} from 'preact/hooks';
 import classNames from 'classnames';
 
 import loadState from '../../actions/load-state';
@@ -17,29 +18,12 @@ const connectedKeys = ['version', 'projectName', 'convos', 'chars'] as const;
 const connectedActions = {loadState, setProjectName};
 type Props = InjectProps<{}, typeof connectedKeys, typeof connectedActions>;
 
-type State = {
-    error: Error | null
-};
+const ProjectBar = ({version, projectName, convos, chars, loadState, setProjectName}: Props): JSX.Element => {
+    const [error, setError] = useState<Error | null>(null);
 
-class ProjectBar extends Component<Props, State> {
-    constructor (props: Props) {
-        super(props);
+    const onInput = (event: Event): unknown => setProjectName((event.target as HTMLInputElement).value);
 
-        this.state = {
-            error: null
-        };
-
-        this.onInput = this.onInput.bind(this);
-        this.onSave = this.onSave.bind(this);
-        this.onLoad = this.onLoad.bind(this);
-        this.closeError = this.closeError.bind(this);
-    }
-
-    onInput (event: Event): void {
-        this.props.setProjectName((event.target as HTMLInputElement).value);
-    }
-
-    onLoad (): void {
+    const onLoad = (): void => {
         const input = document.createElement('input');
         input.type = 'file';
         input.addEventListener('change', event => {
@@ -53,58 +37,50 @@ class ProjectBar extends Component<Props, State> {
                         if (errors.length > 0) throw new Error('Invalid JSON');
                         // eslint-disable-next-line max-len
                         // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-argument
-                        this.props.loadState(result as any);
+                        loadState(result as any);
                     } catch (error) {
-                        this.setState({error: error as Error});
+                        setError(error as Error);
                     }
                 });
                 reader.readAsText(files[0]);
             }
         });
         input.click();
-    }
+    };
 
-    onSave (): void {
-        const {version, projectName, convos, chars} = this.props;
+    const onSave = (): void =>
         saveToFile(`${projectName}.json`, saveState({version, projectName, convos: Array.from(Object.values(convos)), chars}));
-    }
 
-    closeError (): void {
-        this.setState({error: null});
-    }
-
-    render (): JSX.Element {
-        return (
-            <div className={style.projectBar}>
-                <input
-                    className={style.projectName}
-                    type="text"
-                    value={this.props.projectName}
-                    onInput={this.onInput}
-                />
-                <div
-                    className={classNames(style.button, icons['icon'], icons['icon-button'], icons['save'])}
-                    title="Save"
-                    onClick={this.onSave}
-                />
-                <div
-                    className={classNames(style.button, icons['icon'], icons['icon-button'], icons['load'])}
-                    title="Load"
-                    onClick={this.onLoad}
-                />
-                {this.state.error ?
-                    <div className={style.error}>
-                        <span className={style.errorMessage}>{this.state.error.message}</span>
-                        <div
-                            className={classNames(icons['icon'], icons['icon-button'], icons['delete'])}
-                            onClick={this.closeError}
-                        />
-                    </div> :
-                    null
-                }
-            </div>
-        );
-    }
-}
+    return (
+        <div className={style.projectBar}>
+            <input
+                className={style.projectName}
+                type="text"
+                value={projectName}
+                onInput={onInput}
+            />
+            <div
+                className={classNames(style.button, icons['icon'], icons['icon-button'], icons['save'])}
+                title="Save"
+                onClick={onSave}
+            />
+            <div
+                className={classNames(style.button, icons['icon'], icons['icon-button'], icons['load'])}
+                title="Load"
+                onClick={onLoad}
+            />
+            {error ?
+                <div className={style.error}>
+                    <span className={style.errorMessage}>{error.message}</span>
+                    <div
+                        className={classNames(icons['icon'], icons['icon-button'], icons['delete'])}
+                        onClick={(): void => setError(null)}
+                    />
+                </div> :
+                null
+            }
+        </div>
+    );
+};
 
 export default connect(connectedKeys, connectedActions)(ProjectBar);

@@ -20,7 +20,7 @@ const CharacterListing = ({char, active, onClick, onEdit, onDelete}: {
     onClick?: (char: Character) => void,
     onEdit?: (char: Character) => void,
     onDelete?: (char: Character) => void,
-}): JSX.Element => (
+}): JSX.Element => useMemo(() => (
     <div
         className={classNames(style.character, {[style.active]: active})}
         onClick={onClick && ((): void => onClick(char))}
@@ -47,7 +47,7 @@ const CharacterListing = ({char, active, onClick, onEdit, onDelete}: {
             onClick={onDelete ? ((): void => onDelete(char)) : undefined}
         />
     </div>
-);
+), [char, active, onClick, onEdit, onDelete]);
 
 const connectedKeys = ['chars', 'currentCharID', 'convos', 'currentConvoID'] as const;
 const connectedActions = {deleteCharacter, setCurrentCharacterID, setEditedCharacterID, setToBeReplacedCharacterID};

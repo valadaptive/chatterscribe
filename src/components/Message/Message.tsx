@@ -2,7 +2,8 @@
 import style from './style.scss';
 import icons from '../../icons/icons.scss';
 
-import {Component, createRef, RefObject, JSX} from 'preact';
+import type {Ref, JSX} from 'preact';
+import {useCallback, useEffect, useMemo, useRef, useState} from 'preact/hooks';
 import classNames from 'classnames';
 
 import SearchableMenu from '../SearchableMenu/SearchableMenu';
@@ -20,109 +21,97 @@ import type {ID, Message as MessageType} from '../../util/datatypes';
 const connectedKeys = ['chars', 'editedMessageID', 'insertAboveMessageID'] as const;
 const connectedActions = {deleteMessage, editMessage, replaceMessageAuthor, setEditedMessage, setInsertAboveMessageID};
 
-type Props<T extends HTMLDivElement> = InjectProps<{
+type Props = InjectProps<{
     message: MessageType,
     convoID: ID,
     index: number,
-    elemRef?: RefObject<T>
+    elemRef?: Ref<HTMLDivElement>
 }, typeof connectedKeys, typeof connectedActions>;
 
-type State = {
-    authorMenuOpen: boolean,
-    authorMenuX: number,
-    authorMenuY: number
-};
+const Message = ({
+    message,
+    convoID,
+    index,
+    elemRef,
 
-class Message<T extends HTMLDivElement> extends Component<Props<T>, State> {
-    contentsRef: RefObject<HTMLTextAreaElement>;
+    chars,
+    editedMessageID,
+    insertAboveMessageID,
 
-    constructor (props: Props<T>) {
-        super(props);
+    deleteMessage,
+    editMessage,
+    replaceMessageAuthor,
+    setEditedMessage,
+    setInsertAboveMessageID
+}: Props): JSX.Element => {
+    const {id, authorID, contents} = message;
+    const editable = id === editedMessageID;
+    const prevEditable = useRef(editable);
 
-        this.state = {
-            authorMenuOpen: false,
-            authorMenuX: 0,
-            authorMenuY: 0
+    const char = useMemo(
+        () => chars.find(char => char.id === authorID) || {color: 0xffffff, name: 'Unknown Character'},
+        [chars, authorID]
+    );
+
+    const contentsRef = useRef<HTMLTextAreaElement>(null);
+    const [authorMenu, setAuthorMenu] = useState<{
+        x: number,
+        y: number
+    } | null>(null);
+
+    // When we click the edit button, focus the message contents box
+    useEffect(() => {
+        if (!prevEditable.current && editable && contentsRef.current) {
+            contentsRef.current.focus();
+        }
+        prevEditable.current = editable;
+    });
+
+    const onReplaceAuthor = useCallback((newAuthorID: ID): void => {
+        replaceMessageAuthor(convoID, index, newAuthorID);
+        setAuthorMenu(null);
+    }, [replaceMessageAuthor, setAuthorMenu, convoID, index]);
+
+    const onDismissAuthorMenu = useCallback((): void => {
+        setAuthorMenu(null);
+    }, [setAuthorMenu]);
+
+    const authorMenuElement = useMemo(
+        () => authorMenu ? <SearchableMenu
+            items={chars.map(({id, name}) => ({id, value: name}))}
+            x={authorMenu.x}
+            y={authorMenu.y}
+            onDismiss={onDismissAuthorMenu}
+            onClickItem={onReplaceAuthor}
+        /> : null,
+        [chars, authorMenu]
+    );
+
+    return useMemo(() => {
+        const onKeyPress = (event: KeyboardEvent): void => {
+            if (event.code === 'Enter' && !event.shiftKey && contentsRef.current) {
+                editMessage(convoID, index, contentsRef.current.value);
+                setEditedMessage(null);
+            }
         };
 
-        this.contentsRef = createRef();
-        this.onInsertAbove = this.onInsertAbove.bind(this);
-        this.onMessageEdit = this.onMessageEdit.bind(this);
-        this.onMessageDelete = this.onMessageDelete.bind(this);
-        this.onKeyPress = this.onKeyPress.bind(this);
-        this.onBlur = this.onBlur.bind(this);
-        this.onClickAuthor = this.onClickAuthor.bind(this);
-        this.onDismissAuthorMenu = this.onDismissAuthorMenu.bind(this);
-        this.onReplaceAuthor = this.onReplaceAuthor.bind(this);
-    }
+        const onBlur = (): void => {
+            if (!contentsRef.current) return;
+            editMessage(convoID, index, contentsRef.current.value);
+            setEditedMessage(null);
+        };
 
-    onInsertAbove (): void {
-        this.props.setInsertAboveMessageID(this.props.insertAboveMessageID === this.props.message.id ?
-            null :
-            this.props.message.id);
-    }
-
-    onMessageEdit (): void {
-        this.props.setEditedMessage(this.props.editedMessageID === this.props.message.id ?
-            null :
-            this.props.message.id);
-    }
-
-    onMessageDelete (): void {
-        this.props.deleteMessage(this.props.index);
-    }
-
-    onKeyPress (event: KeyboardEvent): void {
-        if (event.code === 'Enter' && !event.shiftKey && this.contentsRef.current) {
-            this.props.editMessage(this.props.convoID, this.props.index, this.contentsRef.current.value);
-            this.props.setEditedMessage(null);
-        }
-    }
-
-    onBlur (): void {
-        if (!this.contentsRef.current) return;
-        this.props.editMessage(this.props.convoID, this.props.index, this.contentsRef.current.value);
-        this.props.setEditedMessage(null);
-    }
-
-    onClickAuthor (event: Event): void {
-        const {x, y, height} = (event.target as Element).getBoundingClientRect();
-        this.setState(prevState => ({
-            authorMenuOpen: !prevState.authorMenuOpen,
-            authorMenuX: x,
-            authorMenuY: y + height
-        }));
-    }
-
-    onReplaceAuthor (newAuthorID: ID): void {
-        this.props.replaceMessageAuthor(this.props.convoID, this.props.index, newAuthorID);
-        this.setState({authorMenuOpen: false});
-    }
-
-    onDismissAuthorMenu (): void {
-        this.setState({authorMenuOpen: false});
-    }
-
-    componentDidUpdate (prevProps: Props<T>): void {
-        if (prevProps.editedMessageID !== prevProps.message.id &&
-            this.props.editedMessageID === this.props.message.id &&
-            this.contentsRef.current) {
-            this.contentsRef.current.focus();
-        }
-    }
-
-    render (): JSX.Element {
-        const {message, chars, editedMessageID, elemRef} = this.props;
-        const {id, authorID, contents} = message;
-        const editable = id === editedMessageID;
-        const char = chars.find(char => char.id === authorID) || {color: 0xffffff, name: 'Unknown Character'};
+        const onClickAuthor = (event: Event): void => {
+            const {x, y, height} = (event.target as Element).getBoundingClientRect();
+            setAuthorMenu(prevValue => prevValue === null ? {x, y: y + height} : null);
+        };
 
         return (
             <div className={style.message} ref={elemRef}>
                 <div
                     className={style.author}
                     style={`color: ${colorToHex(char.color)}`}
-                    onClick={this.onClickAuthor}
+                    onClick={onClickAuthor}
                 >
                     {char.name}
                 </div>
@@ -133,10 +122,10 @@ class Message<T extends HTMLDivElement> extends Component<Props<T>, State> {
                         <div className={style.messageEditWrapper}>
                             <textarea
                                 className={style.messageEditArea}
-                                onKeyPress={this.onKeyPress}
-                                onBlur={this.onBlur}
+                                onKeyPress={onKeyPress}
+                                onBlur={onBlur}
                                 tabIndex={0}
-                                ref={this.contentsRef}
+                                ref={contentsRef}
                                 value={contents}
                             />
                         </div> :
@@ -150,7 +139,7 @@ class Message<T extends HTMLDivElement> extends Component<Props<T>, State> {
                             icons['insert-above']
                         )}
                         title="Insert above"
-                        onClick={this.onInsertAbove}
+                        onClick={(): unknown => setInsertAboveMessageID(insertAboveMessageID === id ? null : id)}
                     />
                     <div
                         className={classNames(
@@ -159,7 +148,7 @@ class Message<T extends HTMLDivElement> extends Component<Props<T>, State> {
                             icons['edit'])
                         }
                         title="Edit"
-                        onClick={this.onMessageEdit}
+                        onClick={(): unknown => setEditedMessage(editedMessageID === id ? null : id)}
                     />
                     <div
                         className={classNames(
@@ -168,21 +157,13 @@ class Message<T extends HTMLDivElement> extends Component<Props<T>, State> {
                             icons['delete'])
                         }
                         title="Delete"
-                        onClick={this.onMessageDelete}
+                        onClick={(): unknown => deleteMessage(index)}
                     />
                 </div>
-                {this.state.authorMenuOpen ?
-                    <SearchableMenu
-                        items={this.props.chars.map(({id, name}) => ({id, value: name}))}
-                        x={this.state.authorMenuX}
-                        y={this.state.authorMenuY}
-                        onDismiss={this.onDismissAuthorMenu}
-                        onClickItem={this.onReplaceAuthor}
-                    /> :
-                    null}
+                {authorMenuElement}
             </div>
         );
-    }
-}
+    }, [char, onReplaceAuthor, onDismissAuthorMenu, authorMenuElement, editable]);
+};
 
 export default connect(connectedKeys, connectedActions)(Message);
