@@ -1,6 +1,7 @@
 import style from './style.scss';
 
-import {Component, JSX} from 'preact';
+import type {JSX} from 'preact';
+import {useRef, useState} from 'preact/hooks';
 
 import createCharacter from '../../actions/create-character';
 import createMessage from '../../actions/create-message';
@@ -16,57 +17,63 @@ type Props = InjectProps<{
     beforeMessage?: number
 }, typeof connectedKeys, typeof connectedActions>;
 
-class CommandBox extends Component<Props> {
-    // TODO: store as state and re-render
-    tabResults: Character[] | null;
-    tabIndex: number;
+const CommandBox = ({
+    beforeMessage,
 
-    constructor (props: Props) {
-        super(props);
+    currentCharID,
+    chars,
+    currentConvoID,
+    convos,
 
-        this.tabResults = null;
-        this.tabIndex = -1;
+    createMessage,
+    editMessage,
+    createCharacter,
+    setCurrentCharacterID
+}: Props): JSX.Element => {
+    const tabResults = useRef<{
+        characters: Character[],
+        index: number
+    } | null>(null);
 
-        this.onKeyPress = this.onKeyPress.bind(this);
-        this.onKeyDown = this.onKeyDown.bind(this);
-    }
+    // TODO: use a signal for this
+    const [value, setValue] = useState('');
 
-    onKeyDown (event: KeyboardEvent): void {
+    const onKeyDown = (event: KeyboardEvent): void => {
         if (event.code === 'Tab') {
             event.preventDefault();
-            const target = event.target as HTMLTextAreaElement;
-            const contents = target.value.toLowerCase();
-            if (contents.indexOf(':') === -1 && this.tabResults === null) {
-                this.tabResults = this.props.chars.filter(
-                    character => character.name.toLowerCase().startsWith(contents));
-                this.tabIndex = 0;
+            const contents = value.toLowerCase();
+            if (contents.indexOf(':') === -1 && tabResults.current === null) {
+                tabResults.current = {
+                    characters: chars.filter(
+                        character => character.name.toLowerCase().startsWith(contents)),
+                    index: 0
+                };
             }
-            if (!this.tabResults?.length) return;
-            const character = this.tabResults[this.tabIndex];
-            this.tabIndex = (this.tabIndex + 1) % this.tabResults.length;
-            target.value = `${character.name}: `;
+            if (!tabResults.current || tabResults.current.characters.length === 0) return;
+            const character = tabResults.current.characters[tabResults.current.index];
+            tabResults.current.index = (tabResults.current.index + 1) % tabResults.current.characters.length;
+            setValue(`${character.name}: `);
         } else {
-            this.tabResults = null;
+            tabResults.current = null;
         }
-    }
+    };
 
-    onKeyPress (event: KeyboardEvent): void {
+    const onKeyPress = (event: KeyboardEvent): void => {
         if (event.code === 'Enter' && !event.shiftKey) {
             event.preventDefault();
-            const target = event.target as HTMLTextAreaElement;
-            let command = target.value;
+            let command = value;
 
             // Parse off leading author specifier
             const colonMatch = /([^:]+):(?:\s+)(.+)/g.exec(command);
             if (colonMatch) {
                 const authorName = colonMatch[1];
                 const authorNameLower = authorName.toLowerCase();
-                const char = this.props.chars.find(
+                const char = chars.find(
                     character => character.name.toLowerCase() === authorNameLower);
                 if (!char) {
-                    this.props.createCharacter(authorName);
+                    createCharacter(authorName);
                 } else {
-                    this.props.setCurrentCharacterID(char.id);
+                    setCurrentCharacterID(char.id);
                 }
                 command = colonMatch[2];
             }
@@ -74,29 +81,37 @@ class CommandBox extends Component<Props> {
             const replaceMatch = /^s\/([^/]+)\/([^/]+)\/?$/.exec(command);
             if (replaceMatch) {
                 // if we added a new character, get it here
-                const {currentCharID, currentConvoID, convos} = this.props;
                 const {messages} = convos[currentConvoID!];
-                for (let i = this.props.beforeMessage || messages.length - 1; i >= 0; i--) {
+                for (let i = beforeMessage || messages.length - 1; i >= 0; i--) {
                     if (messages[i].authorID === currentCharID) {
-                        this.props.editMessage(
+                        editMessage(
                             currentConvoID!,
                             i,
                             messages[i].contents.split(replaceMatch[1]).join(replaceMatch[2])
                         );
-                        target.value = '';
+                        setValue('');
                         return;
                     }
                 }
             }
 
-            target.value = '';
-            this.props.createMessage(command, this.props.beforeMessage);
+            setValue('');
+            createMessage(command, beforeMessage);
+            return;
         }
-    }
+    };
 
-    render (): JSX.Element {
-        return <textarea className={style.commandBox} onKeyPress={this.onKeyPress} onKeyDown={this.onKeyDown} />;
-    }
-}
+    const onInput = (event: Event): void => {
+        setValue((event.target as HTMLTextAreaElement).value);
+    };
+
+    return <textarea
+        className={style.commandBox}
+        onKeyPress={onKeyPress}
+        onInput={onInput}
+        onKeyDown={onKeyDown}
+        value={value}
+    />;
+};
 
 export default connect(connectedKeys, connectedActions)(CommandBox);

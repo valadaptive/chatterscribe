@@ -1,7 +1,8 @@
 import style from './style.scss';
 import icons from '../../icons/icons.scss';
 
-import {Component, createRef, RefObject, JSX} from 'preact';
+import type {JSX} from 'preact';
+import {useEffect, useMemo, useRef} from 'preact/hooks';
 import classNames from 'classnames';
 
 import CommandBox from '../CommandBox/CommandBox';
@@ -18,33 +19,28 @@ type Props = InjectProps<{
     convo: Convo | undefined,
 }, typeof connectedKeys, typeof connectedActions>;
 
-class Messages extends Component<Props> {
-    lastMessageElem: RefObject<HTMLDivElement>;
+const Messages = ({convo, insertAboveMessageID, setInsertAboveMessageID}: Props): JSX.Element => {
+    const lastMessageElem = useRef<HTMLDivElement>(null);
 
-    constructor (props: Props) {
-        super(props);
+    const messages = convo?.messages;
+    const prevMessagesRef = useRef(messages);
 
-        this.lastMessageElem = createRef();
-    }
-
-    componentDidUpdate (prevProps: Props): void {
-        const prevMessages = prevProps.convo?.messages;
-        const currMessages = this.props.convo?.messages;
-        const messageAddedAtBottom = prevMessages && currMessages &&
-        prevMessages.length + 1 === currMessages.length &&
-        prevMessages[prevMessages.length - 1] !== currMessages[currMessages.length - 1];
+    useEffect(() => {
+        const prevMessages = prevMessagesRef.current;
+        const messageAddedAtBottom = prevMessages && messages &&
+            prevMessages.length + 1 === messages.length &&
+            prevMessages[prevMessages.length - 1] !== messages[messages.length - 1];
 
         // Ideally, this would happen for messages added anywhere, but that would require creating a ref for every
         // message and arrays of refs are really hard to do correctly
-        if (messageAddedAtBottom && this.lastMessageElem.current) {
-            this.lastMessageElem.current.scrollIntoView();
+        if (messageAddedAtBottom && lastMessageElem.current) {
+            lastMessageElem.current.scrollIntoView();
         }
-    }
 
-    render (): JSX.Element {
-        const {convo, insertAboveMessageID, setInsertAboveMessageID} = this.props;
-        const messages = convo?.messages;
+        prevMessagesRef.current = messages;
+    });
 
+    const messageElems = useMemo(() => {
         const messageElems = [];
         if (messages) {
             for (let i = 0; i < messages.length; i++) {
@@ -77,19 +73,21 @@ class Messages extends Component<Props> {
                     key={message.id}
                     index={i}
                     // I could use forwardRef here but don't want to pull in preact/compat
-                    elemRef={i === messages.length - 1 ? this.lastMessageElem : undefined}
+                    elemRef={i === messages.length - 1 ? lastMessageElem : undefined}
                 />);
             }
         }
+        return messageElems;
+    }, [messages, convo?.id]);
 
-        return (
-            <div className={style.messages}>
-                <div className={style.messagesInner}>
-                    {messageElems}
-                </div>
+
+    return (
+        <div className={style.messages}>
+            <div className={style.messagesInner}>
+                {messageElems}
             </div>
-        );
-    }
-}
+        </div>
+    );
+};
 
 export default connect(connectedKeys, connectedActions)(Messages);

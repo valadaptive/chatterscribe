@@ -1,6 +1,7 @@
 import style from './style.scss';
 
-import {Component, JSX} from 'preact';
+import type {JSX} from 'preact';
+import {useMemo} from 'preact/hooks';
 
 import CommandBox from '../CommandBox/CommandBox';
 import CharacterList from '../CharacterList/CharacterList';
@@ -22,66 +23,77 @@ const connectedKeys = ['convos', 'currentConvoID', 'editedCharID', 'toBeReplaced
 const connectedActions = {setEditedCharacterID, setToBeReplacedCharacterID, setExportedConvoID};
 type Props = InjectProps<{}, typeof connectedKeys, typeof connectedActions>;
 
-class App extends Component<Props> {
-    constructor (props: Props) {
-        super(props);
+const App = ({
+    convos,
+    currentConvoID,
+    editedCharID,
+    toBeReplacedCharID,
+    exportedConvoID,
 
-        this.closeCharacterSettings = this.closeCharacterSettings.bind(this);
-        this.closeCharacterReplaceDialog = this.closeCharacterReplaceDialog.bind(this);
-        this.closeExportConvoDialog = this.closeExportConvoDialog.bind(this);
-    }
+    setEditedCharacterID,
+    setToBeReplacedCharacterID,
+    setExportedConvoID
+}: Props): JSX.Element => {
+    const projectBarPane = useMemo(() => (
+        <div className={style.projectBarPane}>
+            <ProjectBar />
+        </div>
+    ), []);
 
-    closeCharacterSettings (): void {
-        this.props.setEditedCharacterID(null);
-    }
+    const convosPane = useMemo(() => (
+        <div className={style.convosPane}>
+            <ConvoList />
+        </div>
+    ), []);
 
-    closeCharacterReplaceDialog (): void {
-        this.props.setToBeReplacedCharacterID(null);
-    }
+    const commandBoxPane = useMemo(() => (
+        <div className={style.commandBoxPane}>
+            <CommandBox />
+        </div>
+    ), []);
 
-    closeExportConvoDialog (): void {
-        this.props.setExportedConvoID(null);
-    }
+    const charactersPane = useMemo(() => (
+        <div className={style.charactersPane}>
+            <CharacterList />
+        </div>
+    ), []);
 
-    render (): JSX.Element {
-        const {convos, currentConvoID, editedCharID, toBeReplacedCharID, exportedConvoID} = this.props;
-        return (
-            <div className={style.app}>
-                <div className={style.projectBarPane}>
-                    <ProjectBar />
+    const modal = useMemo(() => (
+        <>
+            {editedCharID !== null ?
+                <Modal onClose={(): unknown => setEditedCharacterID(null)}>
+                    <CharacterSettingsModal />
+                </Modal> :
+                null}
+            {toBeReplacedCharID !== null ?
+                <Modal onClose={(): unknown => setToBeReplacedCharacterID(null)}>
+                    <ReplaceCharacterModal />
+                </Modal> :
+                null}
+            {exportedConvoID !== null ?
+                <Modal onClose={(): unknown => setExportedConvoID(null)}>
+                    <ExportConvoModal />
+                </Modal> :
+                null}
+        </>
+    ), []);
+
+    return (
+        <div className={style.app}>
+            {projectBarPane}
+            <div className={style.appPane}>
+                {convosPane}
+                <div className={style.messagesPane}>
+                    <Messages convo={currentConvoID !== null ? convos[currentConvoID] : undefined} />
+                    {commandBoxPane}
                 </div>
-                <div className={style.appPane}>
-                    <div className={style.convosPane}>
-                        <ConvoList />
-                    </div>
-                    <div className={style.messagesPane}>
-                        <Messages convo={currentConvoID !== null ? convos[currentConvoID] : undefined} />
-                        <div className={style.commandBoxPane}>
-                            <CommandBox />
-                        </div>
-                    </div>
-                    <div className={style.charactersPane}>
-                        <CharacterList />
-                    </div>
+                <div className={style.charactersPane}>
+                    {charactersPane}
                 </div>
-                {editedCharID !== null ?
-                    <Modal onClose={this.closeCharacterSettings}>
-                        <CharacterSettingsModal />
-                    </Modal> :
-                    null}
-                {toBeReplacedCharID !== null ?
-                    <Modal onClose={this.closeCharacterReplaceDialog}>
-                        <ReplaceCharacterModal />
-                    </Modal> :
-                    null}
-                {exportedConvoID !== null ?
-                    <Modal onClose={this.closeExportConvoDialog}>
-                        <ExportConvoModal />
-                    </Modal> :
-                    null}
             </div>
-        );
-    }
-}
+            {modal}
+        </div>
+    );
+};
 
 export default connect(connectedKeys, connectedActions)(App);
