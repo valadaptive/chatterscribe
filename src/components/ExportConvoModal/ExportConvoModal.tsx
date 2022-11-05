@@ -1,6 +1,6 @@
 import style from './style.scss';
 
-import {Component, JSX} from 'preact';
+import type {JSX} from 'preact';
 
 import setWrapTextEnabled from '../../actions/export-convo-settings/set-wrap-text-enabled';
 import setWrapTextLength from '../../actions/export-convo-settings/set-wrap-text-length';
@@ -22,45 +22,37 @@ const connectedActions = {setWrapTextEnabled, setWrapTextLength, setJustifyEnabl
 
 type Props = InjectProps<{}, typeof stateMapper, typeof connectedActions>;
 
-class ExportConvoModal extends Component<Props> {
-    constructor (props: Props) {
-        super(props);
+const ExportConvoModal = ({
+    convos,
+    exportedConvoID,
+    chars,
+    wrapTextEnabled,
+    wrapTextLength,
+    justifyEnabled,
+    justifySide,
+    setWrapTextEnabled,
+    setWrapTextLength,
+    setJustifyEnabled,
+    setJustifySide
+}: Props): JSX.Element | null => {
+    const onChangeWrapTextEnabled = (event: Event): void => {
+        setWrapTextEnabled((event.target as HTMLInputElement).checked);
+    };
 
-        this.onChangeWrapTextEnabled = this.onChangeWrapTextEnabled.bind(this);
-        this.onChangeWrapTextLength = this.onChangeWrapTextLength.bind(this);
-        this.onChangeJustifyEnabled = this.onChangeJustifyEnabled.bind(this);
-        this.onChangeJustifySide = this.onChangeJustifySide.bind(this);
-        this.onExport = this.onExport.bind(this);
-    }
-
-    onChangeWrapTextEnabled (event: Event): void {
-        this.props.setWrapTextEnabled((event.target as HTMLInputElement).checked);
-    }
-
-    onChangeWrapTextLength (event: Event): void {
+    const onChangeWrapTextLength = (event: Event): void => {
         const length = parseInt((event.target as HTMLInputElement).value);
-        if (Number.isFinite(length)) this.props.setWrapTextLength(length);
-    }
+        if (Number.isFinite(length)) setWrapTextLength(length);
+    };
 
-    onChangeJustifyEnabled (event: Event): void {
-        this.props.setJustifyEnabled((event.target as HTMLInputElement).checked);
-    }
+    const onChangeJustifyEnabled = (event: Event): void => {
+        setJustifyEnabled((event.target as HTMLInputElement).checked);
+    };
 
-    onChangeJustifySide (event: Event): void {
-        this.props.setJustifySide((event.target as HTMLInputElement).value as 'left' | 'right');
-    }
+    const onChangeJustifySide = (event: Event): void => {
+        setJustifySide((event.target as HTMLInputElement).value as 'left' | 'right');
+    };
 
-    onExport (): void {
-        const {
-            convos,
-            exportedConvoID,
-            chars,
-            wrapTextEnabled,
-            wrapTextLength,
-            justifyEnabled,
-            justifySide
-        } = this.props;
-
+    const onExport = (): void => {
         if (!exportedConvoID) return;
         const convo = convos[exportedConvoID];
 
@@ -110,61 +102,58 @@ class ExportConvoModal extends Component<Props> {
         const convoStr = lines.join('\n');
 
         saveToFile(`${convo.name}.txt`, convoStr);
-    }
+    };
 
-    render (): JSX.Element | null {
-        const {convos, exportedConvoID, wrapTextEnabled, wrapTextLength, justifyEnabled, justifySide} = this.props;
-        if (!exportedConvoID) return null;
-        const convo = convos[exportedConvoID];
+    if (!exportedConvoID) return null;
+    const convo = convos[exportedConvoID];
 
-        return (
-            <div className={style.exportModal}>
-                <div className={style.exportTitle}>Export {`"${convo.name}"`}</div>
-                <div className={style.row}>
-                    <label><input
-                        type="checkbox"
-                        checked={wrapTextEnabled}
-                        onChange={this.onChangeWrapTextEnabled}
-                    />Wrap text at </label>
-                    <input
-                        type="number"
-                        min={0}
-                        onChange={this.onChangeWrapTextLength}
-                        disabled={!wrapTextEnabled}
-                        value={wrapTextLength}
-                    /> chars
-                </div>
-                <div className={style.row}>
-                    <label><input
-                        type="checkbox"
-                        checked={justifyEnabled}
-                        onChange={this.onChangeJustifyEnabled}
-                    />Justify usernames </label>
-                    <label>
-                        <input
-                            type="radio"
-                            onClick={this.onChangeJustifySide}
-                            checked={justifySide === 'left'}
-                            disabled={!justifyEnabled}
-                            value="left"
-                        /> Left
-                    </label>
-                    <label>
-                        <input
-                            type="radio"
-                            onClick={this.onChangeJustifySide}
-                            checked={justifySide === 'right'}
-                            disabled={!justifyEnabled}
-                            value="right"
-                        /> Right
-                    </label>
-                </div>
-                <div className={style.row}>
-                    <button onClick={this.onExport}>Export</button>
-                </div>
+    return (
+        <div className={style.exportModal}>
+            <div className={style.exportTitle}>Export {`"${convo.name}"`}</div>
+            <div className={style.row}>
+                <label><input
+                    type="checkbox"
+                    checked={wrapTextEnabled}
+                    onChange={onChangeWrapTextEnabled}
+                />Wrap text at </label>
+                <input
+                    type="number"
+                    min={0}
+                    onChange={onChangeWrapTextLength}
+                    disabled={!wrapTextEnabled}
+                    value={wrapTextLength}
+                /> chars
             </div>
-        );
-    }
-}
+            <div className={style.row}>
+                <label><input
+                    type="checkbox"
+                    checked={justifyEnabled}
+                    onChange={onChangeJustifyEnabled}
+                />Justify usernames </label>
+                <label>
+                    <input
+                        type="radio"
+                        onClick={onChangeJustifySide}
+                        checked={justifySide === 'left'}
+                        disabled={!justifyEnabled}
+                        value="left"
+                    /> Left
+                </label>
+                <label>
+                    <input
+                        type="radio"
+                        onClick={onChangeJustifySide}
+                        checked={justifySide === 'right'}
+                        disabled={!justifyEnabled}
+                        value="right"
+                    /> Right
+                </label>
+            </div>
+            <div className={style.row}>
+                <button onClick={onExport}>Export</button>
+            </div>
+        </div>
+    );
+};
 
 export default connect(stateMapper, connectedActions)(ExportConvoModal);
