@@ -1,4 +1,6 @@
-import type {StoreShape} from '../util/store';
+import type {AppState} from '../util/store';
 import type {ID} from '../util/datatypes';
 
-export default (state: StoreShape, id: ID | null): Partial<StoreShape> => ({editedCharID: id});
+export default (state: AppState, id: ID | null): void => {
+    state.editedCharID.value = id;
+};

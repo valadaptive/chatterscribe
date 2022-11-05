@@ -1,5 +1,5 @@
-import type {StoreShape} from '../../util/store';
+import type {AppState} from '../../util/store';
 
-export default (state: StoreShape, side: 'left' | 'right'): Partial<StoreShape> => ({
-    exportConvoSettings: {...state.exportConvoSettings, justifySide: side}
-});
+export default (state: AppState, side: 'left' | 'right'): void => {
+    state.exportConvoSettings.justifySide.value = side;
+};

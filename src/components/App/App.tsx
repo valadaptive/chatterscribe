@@ -1,6 +1,7 @@
 import style from './style.scss';
 
 import type {JSX} from 'preact';
+import {useComputed} from '@preact/signals';
 import {useMemo} from 'preact/hooks';
 
 import CommandBox from '../CommandBox/CommandBox';
@@ -13,27 +14,17 @@ import Modal from '../Modal/Modal';
 import ProjectBar from '../ProjectBar/ProjectBar';
 import ReplaceCharacterModal from '../ReplaceCharacterModal/ReplaceCharacterModal';
 
-import setEditedCharacterID from '../../actions/set-edited-character-id';
-import setToBeReplacedCharacterID from '../../actions/set-to-be-replaced-character-id';
-import setExportedConvoID from '../../actions/set-exported-convo-id';
+import setEditedCharacterIDAction from '../../actions/set-edited-character-id';
+import setToBeReplacedCharacterIDAction from '../../actions/set-to-be-replaced-character-id';
+import setExportedConvoIDAction from '../../actions/set-exported-convo-id';
 
-import {connect, InjectProps} from '../../util/store';
+import {useAppState, useAction} from '../../util/store';
 
-const connectedKeys = ['convos', 'currentConvoID', 'editedCharID', 'toBeReplacedCharID', 'exportedConvoID'] as const;
-const connectedActions = {setEditedCharacterID, setToBeReplacedCharacterID, setExportedConvoID};
-type Props = InjectProps<{}, typeof connectedKeys, typeof connectedActions>;
-
-const App = ({
-    convos,
-    currentConvoID,
-    editedCharID,
-    toBeReplacedCharID,
-    exportedConvoID,
-
-    setEditedCharacterID,
-    setToBeReplacedCharacterID,
-    setExportedConvoID
-}: Props): JSX.Element => {
+const App = (): JSX.Element => {
+    const {convos, currentConvoID, editedCharID, toBeReplacedCharID, exportedConvoID} = useAppState();
+    const setEditedCharacterID = useAction(setEditedCharacterIDAction);
+    const setToBeReplacedCharacterID = useAction(setToBeReplacedCharacterIDAction);
+    const setExportedConvoID = useAction(setExportedConvoIDAction);
     const projectBarPane = useMemo(() => (
         <div className={style.projectBarPane}>
             <ProjectBar />
@@ -58,25 +49,25 @@ const App = ({
         </div>
     ), []);
 
-    const modal = useMemo(() => (
+    const modal = useComputed(() => (
         <>
-            {editedCharID !== null ?
+            {editedCharID.value !== null ?
                 <Modal onClose={(): unknown => setEditedCharacterID(null)}>
                     <CharacterSettingsModal />
                 </Modal> :
                 null}
-            {toBeReplacedCharID !== null ?
+            {toBeReplacedCharID.value !== null ?
                 <Modal onClose={(): unknown => setToBeReplacedCharacterID(null)}>
                     <ReplaceCharacterModal />
                 </Modal> :
                 null}
-            {exportedConvoID !== null ?
+            {exportedConvoID.value !== null ?
                 <Modal onClose={(): unknown => setExportedConvoID(null)}>
                     <ExportConvoModal />
                 </Modal> :
                 null}
         </>
-    ), []);
+    )).value;
 
     return (
         <div className={style.app}>
@@ -84,7 +75,7 @@ const App = ({
             <div className={style.appPane}>
                 {convosPane}
                 <div className={style.messagesPane}>
-                    <Messages convo={currentConvoID !== null ? convos[currentConvoID] : undefined} />
+                    <Messages convo={currentConvoID.value !== null ? convos.value[currentConvoID.value] : undefined} />
                     {commandBoxPane}
                 </div>
                 <div className={style.charactersPane}>
@@ -96,4 +87,4 @@ const App = ({
     );
 };
 
-export default connect(connectedKeys, connectedActions)(App);
+export default App;

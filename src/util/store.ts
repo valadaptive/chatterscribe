@@ -1,8 +1,12 @@
-import createStore from 'unistore';
-import merge from 'lodash.merge';
+import {createContext} from 'preact';
+import {useContext, useMemo} from 'preact/hooks';
+import {signal, effect, Signal, batch} from '@preact/signals';
 
-import {betterConnect, ConnectedProps} from './connected-props';
 import type {ID, Convo, Character} from './datatypes';
+import saveState from '../serialization/save-state';
+import validate from '../serialization/validate';
+
+import loadState from '../actions/load-state';
 
 const storeVersion = 2;
 
@@ -28,34 +32,17 @@ type StoreShape = {
     }
 };
 
-const loadStore = (): StoreShape => {
-    const defaultStore = {
-        version: storeVersion,
-        projectName: 'New Project',
-        convos: {},
-        convoIDs: [],
-        chars: [],
-        currentConvoID: null,
-        currentCharID: null,
-        editedMessageID: null,
-        editedConvoID: null,
-        editedCharID: null,
-        exportedConvoID: null,
-        toBeReplacedCharID: null,
-        insertAboveMessageID: null,
-        exportConvoSettings: {
-            wrapTextEnabled: false,
-            wrapTextLength: 80,
-            justifyEnabled: true,
-            justifySide: 'left'
-        } as const
-    };
-    const storedStore = localStorage.getItem('store');
+type SignalState<S, SignalKeys extends string> = {
+    [K in keyof S]: K extends SignalKeys ? SignalState<S[K], SignalKeys> : Signal<S[K]>
+};
 
-    if (!storedStore) return defaultStore;
+type AppState = SignalState<StoreShape, 'exportConvoSettings'>;
+
+const loadLegacyState = (store: AppState): void => {
+    const storedStore = localStorage.getItem('store');
+    if (!storedStore) return;
     const parsedStore = JSON.parse(storedStore) as StoreShape;
     // Import v1 autosaves.
-    // TODO: save "session" separately from other state (using serialization code) to avoid losing work
     if (parsedStore.version === 1) {
         const oldConvos = parsedStore.convos as unknown as Convo[];
         parsedStore.convos = {};
@@ -66,25 +53,72 @@ const loadStore = (): StoreShape => {
         }
         parsedStore.version = 2;
     }
-    if (parsedStore.version !== storeVersion) return defaultStore;
-    merge(defaultStore, parsedStore);
+    if (parsedStore.version !== storeVersion) return;
+
+    batch(() => {
+        store.convos.value = parsedStore.convos;
+        store.convoIDs.value = parsedStore.convoIDs;
+        store.chars.value = parsedStore.chars;
+        store.projectName.value = parsedStore.projectName;
+    });
+
+    localStorage.removeItem('store');
+};
+
+const loadStore = (): AppState => {
+    const defaultStore: AppState = {
+        version: signal(storeVersion),
+        projectName: signal('New Project'),
+        convos: signal({}),
+        convoIDs: signal([]),
+        chars: signal([]),
+        currentConvoID: signal(null),
+        currentCharID: signal(null),
+        editedMessageID: signal(null),
+        editedConvoID: signal(null),
+        editedCharID: signal(null),
+        exportedConvoID: signal(null),
+        toBeReplacedCharID: signal(null),
+        insertAboveMessageID: signal(null),
+        exportConvoSettings: {
+            wrapTextEnabled: signal(false),
+            wrapTextLength: signal(80),
+            justifyEnabled: signal(true),
+            justifySide: signal('left' as const)
+        }
+    };
+
+    loadLegacyState(defaultStore);
+
+    const autosave = localStorage.getItem('autosave');
+    if (autosave) {
+        const parsedAutosave: unknown = JSON.parse(autosave);
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+        if (validate(parsedAutosave).length === 0) loadState(defaultStore, parsedAutosave as any);
+    }
+
     return defaultStore;
 };
 
-const store = createStore(loadStore());
+const store = loadStore();
 
-store.subscribe(store => {
-    localStorage.setItem('store', JSON.stringify(store));
+effect(() => {
+    const {projectName, convos, convoIDs, chars} = store;
+    const savedState = saveState({
+        projectName: projectName.value,
+        version: 1,
+        convos: convoIDs.value.map(id => convos.value[id]),
+        chars: chars.value
+    });
+    localStorage.setItem('autosave', savedState);
 });
 
+const AppContext = createContext(store);
 
-const connect = betterConnect<StoreShape>();
+const useAppState = (): AppState => useContext(AppContext);
+const useAction = <T extends unknown[]>(func: (store: AppState, ...args: T) => void): ((...args: T) => void) => {
+    const context = useContext(AppContext);
+    return useMemo(() => func.bind(null, context), [context]);
+};
 
-export type InjectProps<
-    Props,
-    ConnectedKeys extends keyof StoreShape | readonly (keyof StoreShape)[] | ((state: StoreShape) => unknown),
-    ConnectedActions = {}> =
-Props & ConnectedProps<StoreShape, ConnectedKeys, ConnectedActions>;
-export type {StoreShape};
-
-export {connect, store};
+export {useAppState, useAction, AppState, AppContext, store};

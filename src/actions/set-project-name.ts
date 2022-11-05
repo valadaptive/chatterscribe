@@ -1,3 +1,5 @@
-import type {StoreShape} from '../util/store';
+import type {AppState} from '../util/store';
 
-export default (state: StoreShape, projectName: string): Partial<StoreShape> => ({projectName});
+export default (state: AppState, projectName: string): void => {
+    state.projectName.value = projectName;
+};

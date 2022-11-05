@@ -5,20 +5,21 @@ import type {JSX} from 'preact';
 import {useState} from 'preact/hooks';
 import classNames from 'classnames';
 
-import loadState from '../../actions/load-state';
-import setProjectName from '../../actions/set-project-name';
+import loadStateAction from '../../actions/load-state';
+import setProjectNameAction from '../../actions/set-project-name';
 
 import saveState from '../../serialization/save-state';
 import validate from '../../serialization/validate';
 
 import saveToFile from '../../util/save-to-file';
-import {connect, InjectProps} from '../../util/store';
+import {useAppState, useAction} from '../../util/store';
 
-const connectedKeys = ['version', 'projectName', 'convos', 'chars'] as const;
-const connectedActions = {loadState, setProjectName};
-type Props = InjectProps<{}, typeof connectedKeys, typeof connectedActions>;
+const ProjectBar = (): JSX.Element => {
+    const {version, projectName, convos, chars} = useAppState();
 
-const ProjectBar = ({version, projectName, convos, chars, loadState, setProjectName}: Props): JSX.Element => {
+    const loadState = useAction(loadStateAction);
+    const setProjectName = useAction(setProjectNameAction);
+
     const [error, setError] = useState<Error | null>(null);
 
     const onInput = (event: Event): unknown => setProjectName((event.target as HTMLInputElement).value);
@@ -49,7 +50,14 @@ const ProjectBar = ({version, projectName, convos, chars, loadState, setProjectN
     };
 
     const onSave = (): void =>
-        saveToFile(`${projectName}.json`, saveState({version, projectName, convos: Array.from(Object.values(convos)), chars}));
+        saveToFile(
+            `${projectName.value}.json`,
+            saveState({
+                version: version.value,
+                projectName: projectName.value,
+                convos: Array.from(Object.values(convos.value)),
+                chars: chars.value
+            }));
 
     return (
         <div className={style.projectBar}>
@@ -83,4 +91,4 @@ const ProjectBar = ({version, projectName, convos, chars, loadState, setProjectN
     );
 };
 
-export default connect(connectedKeys, connectedActions)(ProjectBar);
+export default ProjectBar;

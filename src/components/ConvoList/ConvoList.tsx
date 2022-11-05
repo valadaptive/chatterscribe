@@ -2,46 +2,30 @@ import style from './style.scss';
 import icons from '../../icons/icons.scss';
 
 import type {JSX} from 'preact';
+import {useComputed} from '@preact/signals';
 import {useMemo, useRef, useEffect} from 'preact/hooks';
 import classNames from 'classnames';
 
-import createConvo from '../../actions/create-convo';
-import deleteConvo from '../../actions/delete-convo';
-import setConvoName from '../../actions/set-convo-name';
-import setCurrentConvoID from '../../actions/set-current-convo-id';
-import setEditedConvoID from '../../actions/set-edited-convo-id';
-import setExportedConvoID from '../../actions/set-exported-convo-id';
+import createConvoAction from '../../actions/create-convo';
+import deleteConvoAction from '../../actions/delete-convo';
+import setConvoNameAction from '../../actions/set-convo-name';
+import setCurrentConvoIDAction from '../../actions/set-current-convo-id';
+import setEditedConvoIDAction from '../../actions/set-edited-convo-id';
+import setExportedConvoIDAction from '../../actions/set-exported-convo-id';
 
-import {connect, InjectProps} from '../../util/store';
+import {useAppState, useAction} from '../../util/store';
 import type {Convo} from '../../util/datatypes';
 
-const convoListingConnectedKeys = ['currentConvoID', 'editedConvoID'] as const;
-const convoListingConnectedActions = {
-    setConvoName,
-    setCurrentConvoID,
-    setEditedConvoID,
-    setExportedConvoID,
-    deleteConvo
-};
+const ConvoListing = ({convo: {id, name}}: {convo: Convo}): JSX.Element => {
+    const {currentConvoID, editedConvoID} = useAppState();
+    const setConvoName = useAction(setConvoNameAction);
+    const setCurrentConvoID = useAction(setCurrentConvoIDAction);
+    const setEditedConvoID = useAction(setEditedConvoIDAction);
+    const setExportedConvoID = useAction(setExportedConvoIDAction);
+    const deleteConvo = useAction(deleteConvoAction);
 
-type ConvoListingProps = InjectProps<{
-    convo: Convo
-}, typeof convoListingConnectedKeys, typeof convoListingConnectedActions>;
-
-const ConvoListing = connect(convoListingConnectedKeys, convoListingConnectedActions)(({
-    convo: {id, name},
-
-    currentConvoID,
-    editedConvoID,
-
-    setConvoName,
-    setCurrentConvoID,
-    setEditedConvoID,
-    setExportedConvoID,
-    deleteConvo
-}: ConvoListingProps): JSX.Element => {
-    const active = currentConvoID === id;
-    const edited = editedConvoID === id;
+    const active = currentConvoID.value === id;
+    const edited = editedConvoID.value === id;
 
     const prevEdited = useRef(edited);
     const editedConvoRef = useRef<HTMLInputElement>(null);
@@ -98,18 +82,16 @@ const ConvoListing = connect(convoListingConnectedKeys, convoListingConnectedAct
         id, name, active, edited, editedConvoRef,
         setConvoName, setCurrentConvoID, setEditedConvoID, setExportedConvoID, deleteConvo
     ]);
-});
+};
 
-const connectedKeys = ['convos', 'convoIDs'] as const;
-const connectedActions = {createConvo};
+const ConvoList = (): JSX.Element => {
+    const {convos, convoIDs} = useAppState();
+    const createConvo = useAction(createConvoAction);
 
-type Props = InjectProps<{}, typeof connectedKeys, typeof connectedActions>;
-
-const ConvoList = connect(connectedKeys, connectedActions)(({convos, convoIDs, createConvo}: Props): JSX.Element => {
-    const convoListings = useMemo(() => convoIDs.map(convoID => {
-        const convo = convos[convoID];
+    const convoListings = useComputed(() => convoIDs.value.map(convoID => {
+        const convo = convos.value[convoID];
         return <ConvoListing key={convoID} convo={convo} />;
-    }), [convos, convoIDs]);
+    })).value;
 
     const createConvoCallback = useMemo(() => createConvo.bind(null), [createConvo]);
 
@@ -123,6 +105,6 @@ const ConvoList = connect(connectedKeys, connectedActions)(({convos, convoIDs, c
             </div>
         </div>
     ), [convoListings, createConvoCallback]);
-});
+};
 
 export default ConvoList;

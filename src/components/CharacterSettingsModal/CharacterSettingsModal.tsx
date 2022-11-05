@@ -2,29 +2,27 @@ import style from './style.scss';
 
 import type {JSX} from 'preact';
 
-import updateCharacter from '../../actions/update-character';
+import updateCharacterAction from '../../actions/update-character';
 
 import colorToHex from '../../util/color-to-hex';
-import {connect, InjectProps} from '../../util/store';
+import {useAppState, useAction} from '../../util/store';
 
-const connectedKeys = ['chars', 'editedCharID'] as const;
-const connectedActions = {updateCharacter};
-type Props = InjectProps<{}, typeof connectedKeys, typeof connectedActions>;
-
-const CharacterSettingsModal = ({chars, editedCharID, updateCharacter}: Props): JSX.Element | null => {
+const CharacterSettingsModal = (): JSX.Element | null => {
+    const {editedCharID, chars} = useAppState();
+    const updateCharacter = useAction(updateCharacterAction);
     const onCharacterNameChange = (event: Event): void => {
-        if (!editedCharID) return;
-        updateCharacter(editedCharID, {name: (event.target as HTMLInputElement).value});
+        if (!editedCharID.value) return;
+        updateCharacter(editedCharID.value, {name: (event.target as HTMLInputElement).value});
     };
 
     const onCharacterColorChange = (event: Event): void => {
-        if (!editedCharID) return;
-        updateCharacter(editedCharID, {
+        if (!editedCharID.value) return;
+        updateCharacter(editedCharID.value, {
             color: parseInt((event.target as HTMLInputElement).value.slice(1), 16)
         });
     };
 
-    const character = chars.find(char => char.id === editedCharID);
+    const character = chars.value.find(char => char.id === editedCharID.value);
     if (!character) return null;
     return (
         <div className={style.characterSettings}>
@@ -50,4 +48,4 @@ const CharacterSettingsModal = ({chars, editedCharID, updateCharacter}: Props): 
     );
 };
 
-export default connect(connectedKeys, connectedActions)(CharacterSettingsModal);
+export default CharacterSettingsModal;

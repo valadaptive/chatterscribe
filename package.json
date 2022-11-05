@@ -51,10 +51,10 @@
     "webpack-remove-empty-scripts": "^1.0.1"
   },
   "dependencies": {
+    "@preact/signals": "^1.1.2",
     "classnames": "^2.3.2",
     "jtd": "^0.1.1",
     "lodash.merge": "^4.6.2",
-    "preact": "^10.11.2",
-    "unistore": "^3.5.2"
+    "preact": "^10.11.2"
   }
 }

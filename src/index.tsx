@@ -1,17 +1,18 @@
 import './forms.scss';
 
 import {render, JSX} from 'preact';
-import {Provider} from 'unistore/preact';
+
+import 'preact/debug';
 
 import App from './components/App/App';
 
-import {store} from './util/store';
+import {AppContext, store} from './util/store';
 
 
 const Main = (): JSX.Element => (
-    <Provider store={store}>
+    <AppContext.Provider value={store}>
         <App />
-    </Provider>
+    </AppContext.Provider>
 );
 
 render(<Main />, document.body);

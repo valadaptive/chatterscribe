@@ -1,9 +1,9 @@
-import type {StoreShape} from '../util/store';
+import type {AppState} from '../util/store';
 import type {ID, Convo} from '../util/datatypes';
 
-export default (state: StoreShape, oldID: ID, newID: ID): Partial<StoreShape> => {
+export default (state: AppState, oldID: ID, newID: ID): void => {
     const newConvos: Record<ID, Convo> = {};
-    for (const convo of Object.values(state.convos)) {
+    for (const convo of Object.values(state.convos.value)) {
         let changed = false;
         let {messages} = convo;
         for (let i = 0; i < messages.length; i++) {
@@ -21,5 +21,5 @@ export default (state: StoreShape, oldID: ID, newID: ID): Partial<StoreShape> =>
 
         newConvos[convo.id] = changed ? {...convo, messages} : convo;
     }
-    return {convos: newConvos};
+    state.convos.value = newConvos;
 };

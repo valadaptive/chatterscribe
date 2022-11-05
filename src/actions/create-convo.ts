@@ -1,11 +1,13 @@
-import createConvo from '../util/create-convo';
-import type {StoreShape} from '../util/store';
+import {batch} from '@preact/signals';
 
-export default (state: StoreShape): Partial<StoreShape> => {
-    const newConvo = createConvo();
-    return {
-        convos: {...state.convos, [newConvo.id]: newConvo},
-        convoIDs: [...state.convoIDs, newConvo.id],
-        currentConvoID: newConvo.id
-    };
+import createConvo from '../util/create-convo';
+import type {AppState} from '../util/store';
+
+export default (state: AppState): void => {
+    batch(() => {
+        const newConvo = createConvo();
+        state.convos.value = {...state.convos.value, [newConvo.id]: newConvo};
+        state.convoIDs.value = [...state.convoIDs.value, newConvo.id];
+        state.currentConvoID.value = newConvo.id;
+    });
 };

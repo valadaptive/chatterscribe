@@ -1,14 +1,17 @@
-import type {StoreShape} from '../util/store';
-import type {ID} from '../util/datatypes';
+import {batch} from '@preact/signals';
 
-export default (state: StoreShape, id: ID, replacementID?: ID): Partial<StoreShape> => {
-    const charIndex = state.chars.findIndex(char => char.id === id);
-    return {
-        chars: state.chars.filter(char => char.id !== id),
-        currentCharID: replacementID || (state.chars.length === 1 ?
+import type {ID} from  '../util/datatypes';
+import type {AppState} from  '../util/store';
+
+export default (state: AppState, id: ID, replacementID?: ID): void => {
+    return batch(() => {
+        const chars = state.chars.value;
+        const charIndex = chars.findIndex(char => char.id === id);
+        state.chars.value = chars.filter(char => char.id !== id);
+        state.currentCharID.value = replacementID || (chars.length === 1 ?
             null :
-            charIndex === state.chars.length - 1 ?
-                state.chars[state.chars.length - 2].id :
-                state.chars[charIndex + 1].id)
-    };
+            charIndex === chars.length - 1 ?
+                chars[chars.length - 2].id :
+                chars[charIndex + 1].id);
+    });
 };

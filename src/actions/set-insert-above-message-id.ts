@@ -1,4 +1,6 @@
-import type {StoreShape} from '../util/store';
+import type {AppState} from '../util/store';
 import type {ID} from '../util/datatypes';
 
-export default (state: StoreShape, insertAboveMessageID: ID | null): Partial<StoreShape> => ({insertAboveMessageID});
+export default (state: AppState, id: ID | null): void => {
+    state.insertAboveMessageID.value = id;
+};

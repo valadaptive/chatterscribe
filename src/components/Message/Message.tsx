@@ -8,49 +8,44 @@ import classNames from 'classnames';
 
 import SearchableMenu from '../SearchableMenu/SearchableMenu';
 
-import deleteMessage from '../../actions/delete-message';
-import editMessage from '../../actions/edit-message';
-import replaceMessageAuthor from '../../actions/replace-message-author';
-import setEditedMessage from '../../actions/set-edited-message-id';
-import setInsertAboveMessageID from '../../actions/set-insert-above-message-id';
+import deleteMessageAction from '../../actions/delete-message';
+import editMessageAction from '../../actions/edit-message';
+import replaceMessageAuthorAction from '../../actions/replace-message-author';
+import setEditedMessageAction from '../../actions/set-edited-message-id';
+import setInsertAboveMessageIDAction from '../../actions/set-insert-above-message-id';
 
 import colorToHex from '../../util/color-to-hex';
-import {connect, InjectProps} from '../../util/store';
+import {useAppState, useAction} from '../../util/store';
 import type {ID, Message as MessageType} from '../../util/datatypes';
 
-const connectedKeys = ['chars', 'editedMessageID', 'insertAboveMessageID'] as const;
-const connectedActions = {deleteMessage, editMessage, replaceMessageAuthor, setEditedMessage, setInsertAboveMessageID};
-
-type Props = InjectProps<{
+type Props = {
     message: MessageType,
     convoID: ID,
     index: number,
     elemRef?: Ref<HTMLDivElement>
-}, typeof connectedKeys, typeof connectedActions>;
+};
 
 const Message = ({
     message,
     convoID,
     index,
-    elemRef,
-
-    chars,
-    editedMessageID,
-    insertAboveMessageID,
-
-    deleteMessage,
-    editMessage,
-    replaceMessageAuthor,
-    setEditedMessage,
-    setInsertAboveMessageID
+    elemRef
 }: Props): JSX.Element => {
+    const {chars, editedMessageID, insertAboveMessageID} = useAppState();
+
+    const deleteMessage = useAction(deleteMessageAction);
+    const editMessage = useAction(editMessageAction);
+    const replaceMessageAuthor = useAction(replaceMessageAuthorAction);
+    const setEditedMessage = useAction(setEditedMessageAction);
+    const setInsertAboveMessageID = useAction(setInsertAboveMessageIDAction);
+
     const {id, authorID, contents} = message;
-    const editable = id === editedMessageID;
+    const editable = id === editedMessageID.value;
     const prevEditable = useRef(editable);
 
     const char = useMemo(
-        () => chars.find(char => char.id === authorID) || {color: 0xffffff, name: 'Unknown Character'},
-        [chars, authorID]
+        () => chars.value.find(char => char.id === authorID) || {color: 0xffffff, name: 'Unknown Character'},
+        [chars.value, authorID]
     );
 
     const contentsRef = useRef<HTMLTextAreaElement>(null);
@@ -78,13 +73,13 @@ const Message = ({
 
     const authorMenuElement = useMemo(
         () => authorMenu ? <SearchableMenu
-            items={chars.map(({id, name}) => ({id, value: name}))}
+            items={chars.value.map(({id, name}) => ({id, value: name}))}
             x={authorMenu.x}
             y={authorMenu.y}
             onDismiss={onDismissAuthorMenu}
             onClickItem={onReplaceAuthor}
         /> : null,
-        [chars, authorMenu]
+        [chars.value, authorMenu]
     );
 
     return useMemo(() => {
@@ -139,7 +134,7 @@ const Message = ({
                             icons['insert-above']
                         )}
                         title="Insert above"
-                        onClick={(): unknown => setInsertAboveMessageID(insertAboveMessageID === id ? null : id)}
+                        onClick={(): unknown => setInsertAboveMessageID(insertAboveMessageID.value === id ? null : id)}
                     />
                     <div
                         className={classNames(
@@ -148,7 +143,7 @@ const Message = ({
                             icons['edit'])
                         }
                         title="Edit"
-                        onClick={(): unknown => setEditedMessage(editedMessageID === id ? null : id)}
+                        onClick={(): unknown => setEditedMessage(editedMessageID.value === id ? null : id)}
                     />
                     <div
                         className={classNames(
@@ -166,4 +161,4 @@ const Message = ({
     }, [char, onReplaceAuthor, onDismissAuthorMenu, authorMenuElement, editable]);
 };
 
-export default connect(connectedKeys, connectedActions)(Message);
+export default Message;

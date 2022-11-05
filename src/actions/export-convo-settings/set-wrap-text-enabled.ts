@@ -1,5 +1,5 @@
-import type {StoreShape} from '../../util/store';
+import type {AppState} from '../../util/store';
 
-export default (state: StoreShape, enabled: boolean): Partial<StoreShape> => ({
-    exportConvoSettings: {...state.exportConvoSettings, wrapTextEnabled: enabled}
-});
+export default (state: AppState, enabled: boolean): void => {
+    state.exportConvoSettings.wrapTextEnabled.value = enabled;
+};

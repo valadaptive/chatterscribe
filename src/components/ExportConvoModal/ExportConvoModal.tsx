@@ -2,39 +2,35 @@ import style from './style.scss';
 
 import type {JSX} from 'preact';
 
-import setWrapTextEnabled from '../../actions/export-convo-settings/set-wrap-text-enabled';
-import setWrapTextLength from '../../actions/export-convo-settings/set-wrap-text-length';
-import setJustifyEnabled from '../../actions/export-convo-settings/set-justify-enabled';
-import setJustifySide from '../../actions/export-convo-settings/set-justify-side';
+import setWrapTextEnabledAction from '../../actions/export-convo-settings/set-wrap-text-enabled';
+import setWrapTextLengthAction from '../../actions/export-convo-settings/set-wrap-text-length';
+import setJustifyEnabledAction from '../../actions/export-convo-settings/set-justify-enabled';
+import setJustifySideAction from '../../actions/export-convo-settings/set-justify-side';
 
 import saveToFile from '../../util/save-to-file';
-import {connect, InjectProps, StoreShape} from '../../util/store';
+import {useAppState, useAction} from '../../util/store';
 import type {ID} from '../../util/datatypes';
 
-// eslint-disable-next-line @typescript-eslint/explicit-function-return-type
-const stateMapper = (state: StoreShape) => {
-    const {convos, exportedConvoID, chars} = state;
-    const {wrapTextEnabled, wrapTextLength, justifyEnabled, justifySide} = state.exportConvoSettings;
-    return {convos, exportedConvoID, chars, wrapTextEnabled, wrapTextLength, justifyEnabled, justifySide};
-};
+const ExportConvoModal = (): JSX.Element | null => {
+    const {
+        convos,
+        exportedConvoID,
+        chars,
+        exportConvoSettings
+    } = useAppState();
 
-const connectedActions = {setWrapTextEnabled, setWrapTextLength, setJustifyEnabled, setJustifySide};
+    const {
+        wrapTextEnabled,
+        wrapTextLength,
+        justifyEnabled,
+        justifySide
+    } = exportConvoSettings;
 
-type Props = InjectProps<{}, typeof stateMapper, typeof connectedActions>;
+    const setWrapTextEnabled = useAction(setWrapTextEnabledAction);
+    const setWrapTextLength = useAction(setWrapTextLengthAction);
+    const setJustifyEnabled = useAction(setJustifyEnabledAction);
+    const setJustifySide = useAction(setJustifySideAction);
 
-const ExportConvoModal = ({
-    convos,
-    exportedConvoID,
-    chars,
-    wrapTextEnabled,
-    wrapTextLength,
-    justifyEnabled,
-    justifySide,
-    setWrapTextEnabled,
-    setWrapTextLength,
-    setJustifyEnabled,
-    setJustifySide
-}: Props): JSX.Element | null => {
     const onChangeWrapTextEnabled = (event: Event): void => {
         setWrapTextEnabled((event.target as HTMLInputElement).checked);
     };
@@ -53,8 +49,8 @@ const ExportConvoModal = ({
     };
 
     const onExport = (): void => {
-        if (!exportedConvoID) return;
-        const convo = convos[exportedConvoID];
+        if (!exportedConvoID.value) return;
+        const convo = convos.value[exportedConvoID.value];
 
         const charsInConvo = new Set<ID>();
         for (const message of convo.messages) {
@@ -62,16 +58,16 @@ const ExportConvoModal = ({
         }
         const longestCharNameLength = Array.from(charsInConvo)
             .reduce((prev: number, charID: ID): number =>
-                Math.max(prev, chars.find(char => char.id === charID)?.name.length ?? 0), 0);
+                Math.max(prev, chars.value.find(char => char.id === charID)?.name.length ?? 0), 0);
 
         const lines = [];
 
         for (const message of convo.messages) {
-            const charName = chars.find(char => char.id === message.authorID)?.name ?? 'Unknown character';
+            const charName = chars.value.find(char => char.id === message.authorID)?.name ?? 'Unknown character';
             let start = `<${charName}> `;
-            if (justifyEnabled) {
+            if (justifyEnabled.value) {
                 const justification = ' '.repeat(longestCharNameLength - charName.length);
-                if (justifySide === 'left') {
+                if (justifySide.value === 'left') {
                     start += justification;
                 } else {
                     start = justification + start;
@@ -80,12 +76,12 @@ const ExportConvoModal = ({
 
             let line = start;
 
-            if (wrapTextEnabled) {
+            if (wrapTextEnabled.value) {
                 const regex = /([^\s]+)(\s|$)/g;
                 regex.lastIndex = 0;
                 let match;
                 while ((match = regex.exec(message.contents)) !== null) {
-                    if (line.length + match[1].length <= wrapTextLength) {
+                    if (line.length + match[1].length <= wrapTextLength.value) {
                         line += match[0];
                     } else {
                         lines.push(line.trimEnd());
@@ -104,8 +100,8 @@ const ExportConvoModal = ({
         saveToFile(`${convo.name}.txt`, convoStr);
     };
 
-    if (!exportedConvoID) return null;
-    const convo = convos[exportedConvoID];
+    if (!exportedConvoID.value) return null;
+    const convo = convos.value[exportedConvoID.value];
 
     return (
         <div className={style.exportModal}>
@@ -134,7 +130,7 @@ const ExportConvoModal = ({
                     <input
                         type="radio"
                         onClick={onChangeJustifySide}
-                        checked={justifySide === 'left'}
+                        checked={justifySide.value === 'left'}
                         disabled={!justifyEnabled}
                         value="left"
                     /> Left
@@ -143,7 +139,7 @@ const ExportConvoModal = ({
                     <input
                         type="radio"
                         onClick={onChangeJustifySide}
-                        checked={justifySide === 'right'}
+                        checked={justifySide.value === 'right'}
                         disabled={!justifyEnabled}
                         value="right"
                     /> Right
@@ -156,4 +152,4 @@ const ExportConvoModal = ({
     );
 };
 
-export default connect(stateMapper, connectedActions)(ExportConvoModal);
+export default ExportConvoModal;

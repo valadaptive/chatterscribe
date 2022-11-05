@@ -1,5 +1,5 @@
-import type {StoreShape} from '../../util/store';
+import type {AppState} from '../../util/store';
 
-export default (state: StoreShape, length: number): Partial<StoreShape> => ({
-    exportConvoSettings: {...state.exportConvoSettings, wrapTextLength: length}
-});
+export default (state: AppState, length: number): void => {
+    state.exportConvoSettings.wrapTextLength.value = length;
+};

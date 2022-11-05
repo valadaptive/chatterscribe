@@ -3,33 +3,21 @@ import style from './style.scss';
 import type {JSX} from 'preact';
 import {useRef, useState} from 'preact/hooks';
 
-import createCharacter from '../../actions/create-character';
-import createMessage from '../../actions/create-message';
-import editMessage from '../../actions/edit-message';
-import setCurrentCharacterID from '../../actions/set-current-character-id';
+import createCharacterAction from '../../actions/create-character';
+import createMessageAction from '../../actions/create-message';
+import editMessageAction from '../../actions/edit-message';
+import setCurrentCharacterIDAction from '../../actions/set-current-character-id';
 
-import {connect, InjectProps} from '../../util/store';
+import {useAppState, useAction} from '../../util/store';
 import type {Character} from '../../util/datatypes';
 
-const connectedKeys = ['currentCharID', 'chars', 'currentConvoID', 'convos'] as const;
-const connectedActions = {createMessage, editMessage, createCharacter, setCurrentCharacterID};
-type Props = InjectProps<{
-    beforeMessage?: number
-}, typeof connectedKeys, typeof connectedActions>;
+const CommandBox = ({beforeMessage}: {beforeMessage?: number}): JSX.Element => {
+    const {currentCharID, chars, currentConvoID, convos} = useAppState();
+    const createCharacter = useAction(createCharacterAction);
+    const createMessage = useAction(createMessageAction);
+    const editMessage = useAction(editMessageAction);
+    const setCurrentCharacterID = useAction(setCurrentCharacterIDAction);
 
-const CommandBox = ({
-    beforeMessage,
-
-    currentCharID,
-    chars,
-    currentConvoID,
-    convos,
-
-    createMessage,
-    editMessage,
-    createCharacter,
-    setCurrentCharacterID
-}: Props): JSX.Element => {
     const tabResults = useRef<{
         characters: Character[],
         index: number
@@ -44,7 +32,7 @@ const CommandBox = ({
             const contents = value.toLowerCase();
             if (contents.indexOf(':') === -1 && tabResults.current === null) {
                 tabResults.current = {
-                    characters: chars.filter(
+                    characters: chars.value.filter(
                         character => character.name.toLowerCase().startsWith(contents)),
                     index: 0
                 };
@@ -68,7 +56,7 @@ const CommandBox = ({
             if (colonMatch) {
                 const authorName = colonMatch[1];
                 const authorNameLower = authorName.toLowerCase();
-                const char = chars.find(
+                const char = chars.value.find(
                     character => character.name.toLowerCase() === authorNameLower);
                 if (!char) {
                     createCharacter(authorName);
@@ -81,11 +69,11 @@ const CommandBox = ({
             const replaceMatch = /^s\/([^/]+)\/([^/]+)\/?$/.exec(command);
             if (replaceMatch) {
                 // if we added a new character, get it here
-                const {messages} = convos[currentConvoID!];
+                const {messages} = convos.value[currentConvoID.value!];
                 for (let i = beforeMessage || messages.length - 1; i >= 0; i--) {
-                    if (messages[i].authorID === currentCharID) {
+                    if (messages[i].authorID === currentCharID.value) {
                         editMessage(
-                            currentConvoID!,
+                            currentConvoID.value!,
                             i,
                             messages[i].contents.split(replaceMatch[1]).join(replaceMatch[2])
                         );
@@ -114,4 +102,4 @@ const CommandBox = ({
     />;
 };
 
-export default connect(connectedKeys, connectedActions)(CommandBox);
+export default CommandBox;

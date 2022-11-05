@@ -3,29 +3,25 @@ import style from './style.scss';
 import type {JSX} from 'preact';
 import {useState} from 'preact/hooks';
 
-import deleteCharacter from '../../actions/delete-character';
-import replaceCharacter from '../../actions/replace-character';
-import setToBeReplacedCharacterID from '../../actions/set-to-be-replaced-character-id';
+import deleteCharacterAction from '../../actions/delete-character';
+import replaceCharacterAction from '../../actions/replace-character';
+import setToBeReplacedCharacterIDAction from '../../actions/set-to-be-replaced-character-id';
 
-import {connect, InjectProps} from '../../util/store';
+import {useAppState, useAction} from '../../util/store';
 
-const connectedKeys = ['chars', 'toBeReplacedCharID'] as const;
-const connectedActions = {replaceCharacter, setToBeReplacedCharacterID, deleteCharacter};
-type Props = InjectProps<{}, typeof connectedKeys, typeof connectedActions>;
+const ReplaceCharacterModal = (): JSX.Element => {
+    const {chars, toBeReplacedCharID} = useAppState();
 
-const ReplaceCharacterModal = ({
-    chars,
-    toBeReplacedCharID,
-    replaceCharacter,
-    setToBeReplacedCharacterID,
-    deleteCharacter
-}: Props): JSX.Element => {
+    const deleteCharacter = useAction(deleteCharacterAction);
+    const replaceCharacter = useAction(replaceCharacterAction);
+    const setToBeReplacedCharacterID = useAction(setToBeReplacedCharacterIDAction);
+
     const [selectedCharacterID, setSelectedCharacterID] = useState<string | undefined>(undefined);
 
     const replaceCharacterCallback = (): void => {
-        if (!toBeReplacedCharID || !selectedCharacterID) return;
-        replaceCharacter(toBeReplacedCharID, selectedCharacterID);
-        deleteCharacter(toBeReplacedCharID, selectedCharacterID);
+        if (!toBeReplacedCharID.value || !selectedCharacterID) return;
+        replaceCharacter(toBeReplacedCharID.value, selectedCharacterID);
+        deleteCharacter(toBeReplacedCharID.value, selectedCharacterID);
         setToBeReplacedCharacterID(null);
     };
 
@@ -38,7 +34,7 @@ const ReplaceCharacterModal = ({
                 <select
                     onChange={(event): unknown => setSelectedCharacterID((event.target as HTMLSelectElement).value)}
                     value={selectedCharacterID ?? undefined}>
-                    {chars.map(char => char.id === toBeReplacedCharID ?
+                    {chars.value.map(char => char.id === toBeReplacedCharID.value ?
                         null :
                         <option value={char.id}>{char.name}</option>)}
                 </select>
@@ -53,4 +49,4 @@ const ReplaceCharacterModal = ({
     );
 };
 
-export default connect(connectedKeys, connectedActions)(ReplaceCharacterModal);
+export default ReplaceCharacterModal;

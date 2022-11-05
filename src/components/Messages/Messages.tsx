@@ -8,18 +8,14 @@ import classNames from 'classnames';
 import CommandBox from '../CommandBox/CommandBox';
 import Message from '../Message/Message';
 
-import setInsertAboveMessageID from '../../actions/set-insert-above-message-id';
+import setInsertAboveMessageIDAction from '../../actions/set-insert-above-message-id';
 
-import {connect, InjectProps} from '../../util/store';
+import {useAppState, useAction} from '../../util/store';
 import {Convo} from '../../util/datatypes';
 
-const connectedKeys = 'insertAboveMessageID';
-const connectedActions = {setInsertAboveMessageID};
-type Props = InjectProps<{
-    convo: Convo | undefined,
-}, typeof connectedKeys, typeof connectedActions>;
-
-const Messages = ({convo, insertAboveMessageID, setInsertAboveMessageID}: Props): JSX.Element => {
+const Messages = ({convo}: {convo: Convo | undefined}): JSX.Element => {
+    const {insertAboveMessageID} = useAppState();
+    const setInsertAboveMessageID = useAction(setInsertAboveMessageIDAction);
     const lastMessageElem = useRef<HTMLDivElement>(null);
 
     const messages = convo?.messages;
@@ -45,7 +41,7 @@ const Messages = ({convo, insertAboveMessageID, setInsertAboveMessageID}: Props)
         if (messages) {
             for (let i = 0; i < messages.length; i++) {
                 const message = messages[i];
-                if (insertAboveMessageID === message.id) {
+                if (insertAboveMessageID.value === message.id) {
                     messageElems.push(
                         <div className={style.insertBox}>
                             <div className={style.closeWrapper}>
@@ -90,4 +86,4 @@ const Messages = ({convo, insertAboveMessageID, setInsertAboveMessageID}: Props)
     );
 };
 
-export default connect(connectedKeys, connectedActions)(Messages);
+export default Messages;
