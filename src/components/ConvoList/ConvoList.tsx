@@ -60,7 +60,10 @@ const ConvoListing = ({convo: {id, name}}: {convo: Convo}): JSX.Element => {
                 icons['icon-button'],
                 icons['export'])
             }
-            onClick={setExportedConvoID.bind(null, id)}
+            onClick={(event): void => {
+                event.stopPropagation();
+                setExportedConvoID(id);
+            }}
         />
         <div
             className={classNames(
@@ -68,7 +71,10 @@ const ConvoListing = ({convo: {id, name}}: {convo: Convo}): JSX.Element => {
                 icons['icon-button'],
                 icons['edit'])
             }
-            onClick={setEditedConvoID.bind(null, id)}
+            onClick={(event): void => {
+                event.stopPropagation();
+                setEditedConvoID(id);
+            }}
         />
         <div
             className={classNames(
@@ -76,7 +82,10 @@ const ConvoListing = ({convo: {id, name}}: {convo: Convo}): JSX.Element => {
                 icons['icon-button'],
                 icons['delete'])
             }
-            onClick={deleteConvo.bind(null, id)}
+            onClick={(event): void => {
+                event.stopPropagation();
+                deleteConvo(id);
+            }}
         />
     </div>, [
         id, name, active, edited, editedConvoRef,
