@@ -17,5 +17,6 @@ export default (state: AppState, json: {
         state.convos.value = convosByID;
         state.convoIDs.value = json.convos.map(convo => convo.id);
         state.chars.value = json.chars;
+        state.currentConvoID.value = null;
     });
 };
