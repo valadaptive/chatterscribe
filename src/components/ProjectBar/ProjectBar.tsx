@@ -1,9 +1,9 @@
 import style from './style.scss';
-import icons from '../../icons/icons.scss';
 
 import type {JSX} from 'preact';
 import {useState} from 'preact/hooks';
-import classNames from 'classnames';
+
+import Icon from '../Icon/Icon';
 
 import loadStateAction from '../../actions/load-state';
 import setProjectNameAction from '../../actions/set-project-name';
@@ -67,23 +67,12 @@ const ProjectBar = (): JSX.Element => {
                 value={projectName}
                 onInput={onInput}
             />
-            <div
-                className={classNames(style.button, icons['icon'], icons['icon-button'], icons['save'])}
-                title="Save"
-                onClick={onSave}
-            />
-            <div
-                className={classNames(style.button, icons['icon'], icons['icon-button'], icons['load'])}
-                title="Load"
-                onClick={onLoad}
-            />
+            <Icon type='save' title='Save' onClick={onSave} />
+            <Icon type='load' title='Load' onClick={onLoad} />
             {error ?
                 <div className={style.error}>
                     <span className={style.errorMessage}>{error.message}</span>
-                    <div
-                        className={classNames(icons['icon'], icons['icon-button'], icons['delete'])}
-                        onClick={(): void => setError(null)}
-                    />
+                    <Icon type='delete' title='Close' onClick={(): void => setError(null)} />
                 </div> :
                 null
             }

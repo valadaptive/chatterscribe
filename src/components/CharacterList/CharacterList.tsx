@@ -1,10 +1,11 @@
 import style from './style.scss';
-import icons from '../../icons/icons.scss';
 
 import type {JSX} from 'preact';
 import {useComputed} from '@preact/signals';
 import {useMemo, useCallback} from 'preact/hooks';
 import classNames from 'classnames';
+
+import Icon from '../Icon/Icon';
 
 import deleteCharacterAction from '../../actions/delete-character';
 import setCurrentCharacterIDAction from '../../actions/set-current-character-id';
@@ -30,23 +31,8 @@ const CharacterListing = ({char, active, onClick, onEdit, onDelete}: {
             className={style.characterName}
             style={`color: ${colorToHex(char.color)}`}
         >{char.name}</div>
-        <div
-            className={classNames(
-                style.edit,
-                icons['icon'],
-                icons['icon-button'],
-                icons['edit'])}
-            onClick={onEdit && ((): void => onEdit(char))}
-        />
-        <div
-            className={classNames(
-                style.delete,
-                icons['icon'],
-                icons['icon-button'],
-                icons['delete'],
-                {[icons['disabled']]: !onDelete})}
-            onClick={onDelete ? ((): void => onDelete(char)) : undefined}
-        />
+        <Icon type='edit' title='Edit' onClick={((): void => onEdit && onEdit(char))} />
+        <Icon type='delete' title='Delete' onClick={((): void => onDelete && onDelete(char))} />
     </div>
 ), [char, active, onClick, onEdit, onDelete]);
 

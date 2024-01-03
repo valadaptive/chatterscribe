@@ -27,26 +27,19 @@
     transition: opacity 0.125s ease;
 }
 
-.delete {
-    background-image: url('delete.svg');
+@mixin def-icons($names) {
+    @each $name in $names {
+        .#{$name} {
+            background-image: url('../../icons/#{$name}.svg');
+        }
+    }
 }
 
-.edit {
-    background-image: url('edit.svg');
-}
-
-.insert-above {
-    background-image: url('insert-above.svg');
-}
-
-.load {
-    background-image: url('load.svg');
-}
-
-.save {
-    background-image: url('save.svg');
-}
-
-.export {
-    background-image: url('export.svg');
-}
+@include def-icons(
+    delete
+    edit
+    export
+    insert-above
+    load
+    save
+)

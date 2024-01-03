@@ -1,11 +1,10 @@
 import style from './style.scss';
-import icons from '../../icons/icons.scss';
 
 import type {JSX} from 'preact';
 import {useEffect, useMemo, useRef} from 'preact/hooks';
-import classNames from 'classnames';
 
 import CommandBox from '../CommandBox/CommandBox';
+import Icon from '../Icon/Icon';
 import Message from '../Message/Message';
 
 import setInsertAboveMessageIDAction from '../../actions/set-insert-above-message-id';
@@ -46,13 +45,9 @@ const Messages = ({convo}: {convo: Convo | undefined}): JSX.Element => {
                         <div className={style.insertBox}>
                             <div className={style.closeWrapper}>
                                 <div className={style.closePositioner}>
-                                    <div
-                                        className={classNames(
-                                            icons['icon'],
-                                            icons['icon-button'],
-                                            icons['delete']
-                                        )}
-                                        title="Close"
+                                    <Icon
+                                        type='delete'
+                                        title='Delete'
                                         onClick={(): unknown => setInsertAboveMessageID(null)}
                                     />
                                 </div>

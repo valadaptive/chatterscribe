@@ -1,11 +1,10 @@
-/* eslint-disable react/prefer-stateless-function */
 import style from './style.scss';
-import icons from '../../icons/icons.scss';
 
 import type {Ref, JSX} from 'preact';
 import {useCallback, useEffect, useMemo, useRef, useState} from 'preact/hooks';
 import classNames from 'classnames';
 
+import Icon from '../Icon/Icon';
 import SearchableMenu from '../SearchableMenu/SearchableMenu';
 
 import deleteMessageAction from '../../actions/delete-message';
@@ -127,31 +126,19 @@ const Message = ({
                         contents}
                 </div>
                 <div className={style.buttons}>
-                    <div
-                        className={classNames(
-                            icons['icon'],
-                            icons['icon-button'],
-                            icons['insert-above']
-                        )}
-                        title="Insert above"
+                    <Icon
+                        type='insert-above'
+                        title='Insert above'
                         onClick={(): unknown => setInsertAboveMessageID(insertAboveMessageID.value === id ? null : id)}
                     />
-                    <div
-                        className={classNames(
-                            icons['icon'],
-                            icons['icon-button'],
-                            icons['edit'])
-                        }
-                        title="Edit"
+                    <Icon
+                        type='edit'
+                        title='Edit'
                         onClick={(): unknown => setEditedMessage(editedMessageID.value === id ? null : id)}
                     />
-                    <div
-                        className={classNames(
-                            icons['icon'],
-                            icons['icon-button'],
-                            icons['delete'])
-                        }
-                        title="Delete"
+                    <Icon
+                        type='delete'
+                        title='Delete'
                         onClick={(): unknown => deleteMessage(index)}
                     />
                 </div>

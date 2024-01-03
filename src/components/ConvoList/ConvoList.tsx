@@ -1,10 +1,11 @@
 import style from './style.scss';
-import icons from '../../icons/icons.scss';
 
 import type {JSX} from 'preact';
 import {useComputed} from '@preact/signals';
 import {useMemo, useRef, useEffect} from 'preact/hooks';
 import classNames from 'classnames';
+
+import Icon from '../Icon/Icon';
 
 import createConvoAction from '../../actions/create-convo';
 import deleteConvoAction from '../../actions/delete-convo';
@@ -54,34 +55,25 @@ const ConvoListing = ({convo: {id, name}}: {convo: Convo}): JSX.Element => {
                 ref={editedConvoRef}
             /> :
             name}</div>
-        <div
-            className={classNames(
-                icons['icon'],
-                icons['icon-button'],
-                icons['export'])
-            }
+        <Icon
+            type='export'
+            title='Export'
             onClick={(event): void => {
                 event.stopPropagation();
                 setExportedConvoID(id);
             }}
         />
-        <div
-            className={classNames(
-                icons['icon'],
-                icons['icon-button'],
-                icons['edit'])
-            }
+        <Icon
+            type='edit'
+            title='Edit'
             onClick={(event): void => {
                 event.stopPropagation();
                 setEditedConvoID(id);
             }}
         />
-        <div
-            className={classNames(
-                icons['icon'],
-                icons['icon-button'],
-                icons['delete'])
-            }
+        <Icon
+            type='delete'
+            title='Delete'
             onClick={(event): void => {
                 event.stopPropagation();
                 deleteConvo(id);
