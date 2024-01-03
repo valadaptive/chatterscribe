@@ -30,7 +30,7 @@
 @mixin def-icons($names) {
     @each $name in $names {
         .#{$name} {
-            background-image: url('../../icons/#{$name}.svg');
+            background-image: url('../../assets/icons/#{$name}.svg');
         }
     }
 }
