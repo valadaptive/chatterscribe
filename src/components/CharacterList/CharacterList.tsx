@@ -22,19 +22,21 @@ const CharacterListing = ({char, active, onClick, onEdit, onDelete}: {
     onClick?: (char: Character) => void,
     onEdit?: (char: Character) => void,
     onDelete?: (char: Character) => void,
-}): JSX.Element => useMemo(() => (
-    <div
-        className={classNames(style.character, {[style.active]: active})}
-        onClick={onClick && ((): void => onClick(char))}
-    >
-        <div
-            className={style.characterName}
-            style={`color: ${colorToHex(char.color)}`}
-        >{char.name}</div>
-        <Icon type='edit' title='Edit' onClick={((): void => onEdit && onEdit(char))} />
-        <Icon type='delete' title='Delete' onClick={((): void => onDelete && onDelete(char))} />
-    </div>
-), [char, active, onClick, onEdit, onDelete]);
+}): JSX.Element => useMemo(() => {
+    const handleClick = useCallback(() => onClick && onClick(char), [onClick, char]);
+    const handleEdit = useCallback(() => onEdit && onEdit(char), [onEdit, char]);
+    const handleDelete = useCallback(() => onDelete && onDelete(char), [onDelete, char]);
+    return (
+        <div className={classNames(style.character, {[style.active]: active})} onClick={handleClick}>
+            <div
+                className={style.characterName}
+                style={`color: ${colorToHex(char.color)}`}
+            >{char.name}</div>
+            <Icon type='edit' title='Edit' onClick={handleEdit} />
+            <Icon type='delete' title='Delete' onClick={handleDelete} />
+        </div>
+    );
+}, [char, active, onClick, onEdit, onDelete]);
 
 const CharacterList = (): JSX.Element => {
     const {chars, currentCharID, convos, currentConvoID} = useAppState();

@@ -93,7 +93,7 @@ const loadStore = (): AppState => {
     const autosave = localStorage.getItem('autosave');
     if (autosave) {
         const parsedAutosave: unknown = JSON.parse(autosave);
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-explicit-any
         if (validate(parsedAutosave).length === 0) loadState(defaultStore, parsedAutosave as any);
     }
 
