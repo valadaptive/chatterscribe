@@ -74,7 +74,7 @@ const Messages = ({convo}: {convo: Convo | undefined}): JSX.Element => {
             }
         }
         return messageElems;
-    }, [messages, convo?.id]);
+    }, [messages, convo?.id, insertAboveMessageID.value]);
 
 
     return (
